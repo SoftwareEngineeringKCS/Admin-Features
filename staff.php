@@ -8,9 +8,10 @@
 		include ('login.html');
 	} else {
 		include ('includes/header.html');
+
 		date_default_timezone_set('America/New_York');
-		$system_date = date("Y-m-d H:i");
-		//print($system_date); #TEST
+		$system_datetime = date("Y-m-d H:i");
+		//print($system_datetime); #TEST
 
 		echo "<br><a href='sign_out.php'>SIGN-UP</a>";
 
@@ -29,7 +30,7 @@
 						$duration = $_POST['duration'];
 
 						if (date_create($period_start) <= date_create($period_end) || strtotime($time_start) <= strtotime($time_end)) {
-							if (date_create($period_start . " " . $time_start . ":00") >= date_create($system_date)) {
+							if (date_create($period_start . " " . $time_start) >= date_create($system_datetime)) {
 								$daysMO = isset($_POST['daysMO']) ? 1 : 0;
 								$daysTU = isset($_POST['daysTU']) ? 1 : 0;
 								$daysWE = isset($_POST['daysWE']) ? 1 : 0;
@@ -331,7 +332,7 @@
 							$result = mysqli_query($conex, $query);
 							if ($result) {
 								if (mysqli_num_rows($result) > 0) {
-									echo "<table border = 1>";
+									echo "<p><table border = 1>";
 									echo "<tr><th colspan='2'>Period<th colspan='2'>Time<th colspan='2'>Meeting";
 									echo "<tr><th>Start<th>End<th>Start<th>End<th>Days<th>Duration";
 									while ($row = mysqli_fetch_array($result)) {
@@ -344,9 +345,9 @@
 										echo "<tr>";
 										echo "<td>$p_start<td>$p_end<td>$t_start<td>$t_end<td>$d<td>$dur";
 									}
-									echo "</table>";
+									echo "</table></p>";
 								} else {
-									echo "<br>### EMPTY LIST ###";
+									echo "<br><br>### EMPTY LIST ###";
 								}
 							} else {
 								echo "<br>Problem trying to get list: " . mysqli_error();
