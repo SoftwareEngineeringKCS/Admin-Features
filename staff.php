@@ -8,73 +8,88 @@
 		include ('login.html');
 	} else {
 		include ('includes/header.html');
-		//echo $_SESSION["user_id"]; //TEST
+		date_default_timezone_set('America/New_York');
+
 		echo "<br><a href='sign_out.php'>SIGN-UP</a>";
 
 		// Check for form submission:
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			include ('includes/db_config.php');
 			// Print the results:
-			echo "<h1>Set-Availability Result</h1>";
-			// Validate Dates.
-			if (checkdate($_POST['start_month'], $_POST['start_day'], $_POST['start_year']) && checkdate($_POST['end_month'], $_POST['end_day'], $_POST['end_year'])) {
-					$period_start = $_POST['start_year'] . "-" . $_POST['start_month'] . "-" . $_POST['start_day'];
-					$period_end = $_POST['end_year'] . "-" . $_POST['end_month'] . "-" . $_POST['end_day'];
-					$time_start = $_POST['start_time'];
-					$time_end = $_POST['end_time'];
-					$duration = $_POST['duration'];
-					
-					if (date_create($period_start) <= date_create($period_end) && strtotime($time_start) <= strtotime($time_end)) {
+			if (isset($_POST['features']) && $_POST['features'] == 'Set-Availability') {
+				echo "<h1>Set-Availability Result</h1>";
+				// Validate Dates.
+				if (checkdate($_POST['start_month'], $_POST['start_day'], $_POST['start_year']) && checkdate($_POST['end_month'], $_POST['end_day'], $_POST['end_year'])) {
+						$period_start = $_POST['start_year'] . "-" . $_POST['start_month'] . "-" . $_POST['start_day'];
+						$period_end = $_POST['end_year'] . "-" . $_POST['end_month'] . "-" . $_POST['end_day'];
+						$time_start = $_POST['start_time'];
+						$time_end = $_POST['end_time'];
+						$duration = $_POST['duration'];
 
-						if (date_create($period_start . " " . $time_start) <= date("Y-m-d H:i")) {
-							$daysMO = isset($_POST['daysMO']) ? 1 : 0;
-							$daysTU = isset($_POST['daysTU']) ? 1 : 0;
-							$daysWE = isset($_POST['daysWE']) ? 1 : 0;
-							$daysTH = isset($_POST['daysTH']) ? 1 : 0;
-							$daysFR = isset($_POST['daysFR']) ? 1 : 0;
-							$days = "";
-							if ($daysMO) {
-								$days = "MO";
-							}
-							if ($daysTU && $days == "") {
-								$days = "TU";
-							} else if ($daysTU && $days != "") {
-								$days = $days . "-TU";
-							}
-							if ($daysWE && $days == "") {
-								$days = "WE";
-							} else if ($daysWE && $days != "") {
-								$days = $days . "-WE";
-							}
-							if ($daysTH && $days == "") {
-								$days = "TH";
-							} else if ($daysTH && $days != "") {
-								$days = $days . "-TH";
-							}
-							if ($daysFR && $days == "") {
-								$days = "FR";
-							} else if ($daysFR && $days != "") {
-								$days = $days . "-FR";
-							}
+						$system_date = date("Y-m-d H:i");
+						//print($system_date); #TEST
 
-							$query = sprintf("CALL usp_Set_Availability('%s','%s', '%s','%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', @message)", $_SESSION['user_id'], $period_start, $period_end, $time_start, $time_end, $days, $duration, 0, 0, 0, "");
-							$result = mysqli_query($conex, $query);
-							$row = mysqli_fetch_array($result);
+						if (date_create($period_start) <= date_create($period_end) || strtotime($time_start) <= strtotime($time_end)) {
+							if (date_create($period_start . " " . $time_start . ":00") >= date_create($system_date)) {
+								$daysMO = isset($_POST['daysMO']) ? 1 : 0;
+								$daysTU = isset($_POST['daysTU']) ? 1 : 0;
+								$daysWE = isset($_POST['daysWE']) ? 1 : 0;
+								$daysTH = isset($_POST['daysTH']) ? 1 : 0;
+								$daysFR = isset($_POST['daysFR']) ? 1 : 0;
+								$days = "";
+								if ($daysMO) {
+									$days = "MO";
+								}
+								if ($daysTU && $days == "") {
+									$days = "TU";
+								} else if ($daysTU && $days != "") {
+									$days = $days . "-TU";
+								}
+								if ($daysWE && $days == "") {
+									$days = "WE";
+								} else if ($daysWE && $days != "") {
+									$days = $days . "-WE";
+								}
+								if ($daysTH && $days == "") {
+									$days = "TH";
+								} else if ($daysTH && $days != "") {
+									$days = $days . "-TH";
+								}
+								if ($daysFR && $days == "") {
+									$days = "FR";
+								} else if ($daysFR && $days != "") {
+									$days = $days . "-FR";
+								}
 
-							echo "<p>$row[0]</p>"; // Message
+								$query = sprintf("CALL usp_Set_Availability('%s','%s', '%s','%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', @message)", $_SESSION['user_id'], $period_start, $period_end, $time_start, $time_end, $days, $duration, 0, 0, 0, "");
+								$result = mysqli_query($conex, $query);
+								$row = mysqli_fetch_array($result);
 
-							mysqli_free_result($result);
-							mysqli_close($conex);
+								echo "<p>$row[0]</p>"; // Message
+
+								mysqli_free_result($result);
+								mysqli_close($conex);
+							} else {
+								echo "<p class='error'>[Start Period-Time] \"" . $period_start . " " . $time_start . "\" must be greater than current datetime.</p>";
+							}
 						} else {
-							echo "<p class='error'>[Start Period-Time] \"" . $period_start . " " . $time_start . "\" must be greater than current datetime.</p>";
-						}
-					} else {
-						echo "<p class='error'>Start-Period must be less than or equal than End-Period and
-												Start-Time must be less than or equal than End-Time.</p>";
-					}	
-			} else {
-				echo "<p class='error'>Start Period and/or End Period are not valid dates.
-										Please check the day number (30-day month or 31-day month).</p>";
+							echo "<p class='error'>Start-Period must be less than or equal than End-Period and
+													Start-Time must be less than or equal than End-Time.</p>";
+						}	
+				} else {
+					echo "<p class='error'>Start Period and/or End Period are not valid dates.
+											Please check the day number (30-day month or 31-day month).</p>";
+				}				
+			} else if (isset($_POST['features']) && $_POST['features'] == 'Manage-Appointments') {
+				echo "<h1>Manage-Appointments Result</h1>";
+
+				# WRITE MANAGE-APPOINTMENTS RESULT HERE
+
+			} else if (isset($_POST['features']) && $_POST['features'] == 'View-Statistics') { 
+				echo "<h1>View-Statistics Result</h1>";
+
+				# WRITE VIEW-STATISTICS RESULT HERE
+
 			}
 			
 		} // End of main submission IF.
@@ -89,7 +104,7 @@
 		<p>
 			<span class="input">
 				<input type="radio" name="features" value="Set-Availability"<?php if (isset($_POST['features']) && ($_POST['features'] == 'Set-Availability')) echo ' checked="checked"'; ?> onclick="doSet()" /> Set-Availability
-				<input type="radio" name="features" value="Manage-Appointments"<?php if (isset($_POST['features']) && ($_POST['features'] == 'Walk-In')) echo ' checked="checked"'; ?> onclick="doManage()" />  Manage-Appointments
+				<input type="radio" name="features" value="Manage-Appointments"<?php if (isset($_POST['features']) && ($_POST['features'] == 'Manage-Appointments')) echo ' checked="checked"'; ?> onclick="doManage()" />  Manage-Appointments
 				<input type="radio" name="features" value="View-Statistics"<?php if (isset($_POST['features']) && ($_POST['features'] == 'View-Statistics')) echo ' checked="checked"'; ?> onclick="doManage()" />  View-Statistics
 			</span>
 		</p>
