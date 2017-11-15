@@ -9,6 +9,8 @@
 	} else {
 		include ('includes/header.html');
 		date_default_timezone_set('America/New_York');
+		$system_date = date("Y-m-d H:i");
+		//print($system_date); #TEST
 
 		echo "<br><a href='sign_out.php'>SIGN-UP</a>";
 
@@ -25,9 +27,6 @@
 						$time_start = $_POST['start_time'];
 						$time_end = $_POST['end_time'];
 						$duration = $_POST['duration'];
-
-						$system_date = date("Y-m-d H:i");
-						//print($system_date); #TEST
 
 						if (date_create($period_start) <= date_create($period_end) || strtotime($time_start) <= strtotime($time_end)) {
 							if (date_create($period_start . " " . $time_start . ":00") >= date_create($system_date)) {
