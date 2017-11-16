@@ -105,7 +105,7 @@
 			<span class="input">
 				<input type="radio" name="features" value="Set-Availability"<?php if (isset($_POST['features']) && ($_POST['features'] == 'Set-Availability')) echo ' checked="checked"'; ?> onclick="doSet()" /> Set-Availability
 				<input type="radio" name="features" value="Manage-Appointments"<?php if (isset($_POST['features']) && ($_POST['features'] == 'Manage-Appointments')) echo ' checked="checked"'; ?> onclick="doManage()" />  Manage-Appointments
-				<input type="radio" name="features" value="View-Statistics"<?php if (isset($_POST['features']) && ($_POST['features'] == 'View-Statistics')) echo ' checked="checked"'; ?> onclick="doManage()" />  View-Statistics
+				<input type="radio" name="features" value="View-Statistics"<?php if (isset($_POST['features']) && ($_POST['features'] == 'View-Statistics')) echo ' checked="checked"'; ?> onclick="doStats()" />  View-Statistics
 			</span>
 		</p>
 		<script type="text/javascript">
