@@ -143,11 +143,11 @@
 		<div id="show_set" style="display: none;">
 			<table width="100%">
 				<tr>
-					<td width="37%"><p><strong><u>SET NEW AVAILABILITY PERIOD:</u></strong></p></td>
-					<td width="63%"><p><strong><u>ACTIVE PERIOD LIST:</u></strong></p></td>
+					<td width="38%" style="border: 0px"><p><strong><u>SET NEW AVAILABILITY PERIOD:</u></strong></p></td>
+					<td width="62%" style="border: 0px"><p><strong><u>ACTIVE PERIOD LIST:</u></strong></p></td>
 				</tr>
 				<tr>
-					<td>
+					<td style="border: 0px">
 						<p>Start Period:
 						<br>
 						<select name='start_month' required="required" style='height: 30px; width: 100px'>
@@ -302,8 +302,8 @@
 						</p>
 						<table>
 							<tr>
-								<td>
-									<p>Meeting Days:<br>
+								<td style="border: 0px">
+									<p style="padding: 20px 0 0 20px">Meeting Days:<br>
 										<input type="checkbox" name="daysMO" value="MO" checked /> Monday<br>
 										<input type="checkbox" name="daysTU" value="TU" checked /> Tuesday<br>
 										<input type="checkbox" name="daysWE" value="WE" checked /> Wednesday<br>
@@ -311,7 +311,7 @@
 										<input type="checkbox" name="daysFR" value="FR" /> Friday
 									</p>
 								</td>
-								<td valign="top">
+								<td valign="top" style="border: 0px">
 									<p>Meeting Duration:<br>
 										<select name='duration' required="required" style='height: 30px; width: 100px'>
 											<option value=''>#Minutes</option>
@@ -324,7 +324,7 @@
 							</tr>
 						</table>
 					</td>
-					<td style="vertical-align: top;">
+					<td style="vertical-align: top; border: 0px;">
 						<?php 
 
 							include ('includes/db_config.php');
@@ -343,7 +343,7 @@
 										$d = $row['days'];
 										$dur = $row['duration'];
 										echo "<tr>";
-										echo "<td>$p_start<td>$p_end<td>$t_start<td>$t_end<td>$d<td>$dur";
+										echo "<td>$p_start<td>$p_end<td>$t_start<td>$t_end<td>$d<td style='text-align: center;'>$dur";
 									}
 									echo "</table></p>";
 								} else {
