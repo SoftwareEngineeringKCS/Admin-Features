@@ -18,68 +18,86 @@
 		// Check for form submission:
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			include ('includes/db_config.php');
-			// Print the results:
+			// Minimal form validation:
 			if (isset($_POST['features']) && $_POST['features'] == 'Set-Availability') {
+				
 				echo "<h1>Set-Availability Result</h1>";
-				// Validate Dates.
-				if (checkdate($_POST['start_month'], $_POST['start_day'], $_POST['start_year']) && checkdate($_POST['end_month'], $_POST['end_day'], $_POST['end_year'])) {
-						$period_start = $_POST['start_year'] . "-" . $_POST['start_month'] . "-" . $_POST['start_day'];
-						$period_end = $_POST['end_year'] . "-" . $_POST['end_month'] . "-" . $_POST['end_day'];
-						$time_start = $_POST['start_time'];
-						$time_end = $_POST['end_time'];
-						$duration = $_POST['duration'];
-
-						if (date_create($period_start) <= date_create($period_end) || strtotime($time_start) <= strtotime($time_end)) {
-							if (date_create($period_start . " " . $time_start) >= date_create($system_datetime)) {
-								$daysMO = isset($_POST['daysMO']) ? 1 : 0;
-								$daysTU = isset($_POST['daysTU']) ? 1 : 0;
-								$daysWE = isset($_POST['daysWE']) ? 1 : 0;
-								$daysTH = isset($_POST['daysTH']) ? 1 : 0;
-								$daysFR = isset($_POST['daysFR']) ? 1 : 0;
-								$days = "";
-								if ($daysMO) {
-									$days = "MO";
-								}
-								if ($daysTU && $days == "") {
-									$days = "TU";
-								} else if ($daysTU && $days != "") {
-									$days = $days . "-TU";
-								}
-								if ($daysWE && $days == "") {
-									$days = "WE";
-								} else if ($daysWE && $days != "") {
-									$days = $days . "-WE";
-								}
-								if ($daysTH && $days == "") {
-									$days = "TH";
-								} else if ($daysTH && $days != "") {
-									$days = $days . "-TH";
-								}
-								if ($daysFR && $days == "") {
-									$days = "FR";
-								} else if ($daysFR && $days != "") {
-									$days = $days . "-FR";
-								}
-
-								$query = sprintf("CALL usp_Set_Availability('%s','%s', '%s','%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', @message)", $_SESSION['user_id'], $period_start, $period_end, $time_start, $time_end, $days, $duration, 0, 0, 0, "");
-								$result = mysqli_query($conex, $query);
-								$row = mysqli_fetch_array($result);
-
-								echo "<p>$row[0]</p>"; // Message
-
-								mysqli_free_result($result);
-								mysqli_close($conex);
-							} else {
-								echo "<p class='error'>[Start Period-Time] \"" . $period_start . " " . $time_start . "\" must be greater than current datetime.</p>";
-							}
-						} else {
-							echo "<p class='error'>Start-Period must be less than or equal than End-Period and
-													Start-Time must be less than or equal than End-Time.</p>";
-						}	
+				if ($_POST['start_month'] == '' || $_POST['start_day'] == '' || $_POST['start_year'] == '' || !is_numeric($_POST['start_year']) ||  
+						$_POST['end_month'] == '' || $_POST['end_day'] == '' || $_POST['end_year'] == '' || !is_numeric($_POST['end_year']) || 
+						$_POST['start_time'] == '' || $_POST['end_time'] == '' || $_POST['duration'] == '' || 
+						(!isset($_POST['daysMO']) && !isset($_POST['daysTU']) && !isset($_POST['daysWE']) && !isset($_POST['daysTH']) && !isset($_POST['daysFR']))) {
+					echo "<h2>The following fields cannot be empty!</h2>";
+					echo "<p class='error'>";
+					if ($_POST['start_month'] == '' || $_POST['start_day'] == '' || $_POST['start_year'] == '') echo "\"Start Period\", ";
+					if ($_POST['end_month'] == '' || $_POST['end_day'] == '' || $_POST['end_year'] == '') echo "\"End Period\", ";
+					if ($_POST['start_time'] == '') echo "\"Start Time\", ";
+					if ($_POST['end_time'] == '') echo "\"End Time\", ";
+					if ($_POST['duration'] == '') echo "\"Meeting Duration\", ";
+					if (!isset($_POST['daysMO']) && !isset($_POST['daysTU']) && !isset($_POST['daysWE']) && !isset($_POST['daysTH']) && !isset($_POST['daysFR'])) echo "\"Meeting Days\"";
+					if (!is_numeric($_POST['start_year']) || !is_numeric($_POST['end_year'])) echo "<br><font size=2 color='steelblue'>\"The year of both periods must be a number!\"</font>";
+					echo "</p>";
 				} else {
-					echo "<p class='error'>Start Period and/or End Period are not valid dates.
-											Please check the day number (30-day month or 31-day month).</p>";
-				}				
+					// Validate Dates.
+					if (checkdate($_POST['start_month'], $_POST['start_day'], $_POST['start_year']) && checkdate($_POST['end_month'], $_POST['end_day'], $_POST['end_year'])) {
+							$period_start = $_POST['start_year'] . "-" . $_POST['start_month'] . "-" . $_POST['start_day'];
+							$period_end = $_POST['end_year'] . "-" . $_POST['end_month'] . "-" . $_POST['end_day'];
+							$time_start = $_POST['start_time'];
+							$time_end = $_POST['end_time'];
+							$duration = $_POST['duration'];
+
+							if (date_create($period_start) <= date_create($period_end) || strtotime($time_start) <= strtotime($time_end)) {
+								if (date_create($period_start . " " . $time_start) >= date_create($system_datetime)) {
+									$daysMO = isset($_POST['daysMO']) ? 1 : 0;
+									$daysTU = isset($_POST['daysTU']) ? 1 : 0;
+									$daysWE = isset($_POST['daysWE']) ? 1 : 0;
+									$daysTH = isset($_POST['daysTH']) ? 1 : 0;
+									$daysFR = isset($_POST['daysFR']) ? 1 : 0;
+									$days = "";
+									if ($daysMO) {
+										$days = "MO";
+									}
+									if ($daysTU && $days == "") {
+										$days = "TU";
+									} else if ($daysTU && $days != "") {
+										$days = $days . "-TU";
+									}
+									if ($daysWE && $days == "") {
+										$days = "WE";
+									} else if ($daysWE && $days != "") {
+										$days = $days . "-WE";
+									}
+									if ($daysTH && $days == "") {
+										$days = "TH";
+									} else if ($daysTH && $days != "") {
+										$days = $days . "-TH";
+									}
+									if ($daysFR && $days == "") {
+										$days = "FR";
+									} else if ($daysFR && $days != "") {
+										$days = $days . "-FR";
+									}
+
+									$query = sprintf("CALL usp_Set_Availability('%s','%s', '%s','%s', '%s', '%s', '%d', '%d', '%d', '%d', '%s', @message)", $_SESSION['user_id'], $period_start, $period_end, $time_start, $time_end, $days, $duration, 0, 0, 0, "");
+									$result = mysqli_query($conex, $query);
+									$row = mysqli_fetch_array($result);
+
+									echo "<p>$row[0]</p>"; // Message
+
+									mysqli_free_result($result);
+									mysqli_close($conex);
+								} else {
+									echo "<p class='error'>[Start Period-Time] \"" . $period_start . " " . $time_start . "\" must be greater than current datetime.</p>";
+								}
+							} else {
+								echo "<p class='error'>Start-Period must be less than or equal than End-Period and
+														Start-Time must be less than or equal than End-Time.</p>";
+							}	
+					} else {
+						echo "<p class='error'>Start Period and/or End Period are not valid dates.
+												Please check the day number (30-day month or 31-day month).</p>";
+					}
+				}
+				
 			} else if (isset($_POST['features']) && $_POST['features'] == 'Manage-Appointments') {
 				echo "<h1>Manage-Appointments Result</h1>";
 
@@ -150,7 +168,7 @@
 					<td style="border: 0px">
 						<p>Start Period:
 						<br>
-						<select name='start_month' required="required" style='height: 30px; width: 100px'>
+						<select name='start_month' style='height: 30px; width: 100px'>
 							<option value=''>#Month</option>
 							<option value='1'<?php if (isset($_POST['start_month']) && $_POST['start_month'] == "1") echo " selected"; ?>>January</option>
 							<option value='2'<?php if (isset($_POST['start_month']) && $_POST['start_month'] == "2") echo " selected"; ?>>February</option>
@@ -165,7 +183,7 @@
 							<option value='11'<?php if (isset($_POST['start_month']) && $_POST['start_month'] == "11") echo " selected"; ?>>November</option>
 							<option value='12'<?php if (isset($_POST['start_month']) && $_POST['start_month'] == "12") echo " selected"; ?>>December</option>
 						</select>
-						<select name='start_day' required="required" style='height: 30px; width: 65px'>
+						<select name='start_day' style='height: 30px; width: 65px'>
 							<option value=''>#Day</option>
 							<option value='1'<?php if (isset($_POST['start_day']) && $_POST['start_day'] == "1") echo " selected"; ?>>1</option>
 							<option value='2'<?php if (isset($_POST['start_day']) && $_POST['start_day'] == "2") echo " selected"; ?>>2</option>
@@ -199,11 +217,11 @@
 							<option value='30'<?php if (isset($_POST['start_day']) && $_POST['start_day'] == "30") echo " selected"; ?>>30</option>
 							<option value='31'<?php if (isset($_POST['start_day']) && $_POST['start_day'] == "31") echo " selected"; ?>>31</option>
 						</select>
-						<input type='text' name='start_year' required="required" value="<?php echo date('Y') ; ?>" style='height: 20px; width: 45px; text-align: center;'>
+						<input type='text' name='start_year' value="<?php echo date('Y') ; ?>" style='height: 20px; width: 45px; text-align: center;'>
 						</p>
 						<p>End Period:
 						<br>
-						<select name='end_month' required="required" style='height: 30px; width: 100px'>
+						<select name='end_month' style='height: 30px; width: 100px'>
 							<option value=''>#Month</option>
 							<option value='1'<?php if (isset($_POST['end_month']) && $_POST['end_month'] == "1") echo " selected"; ?>>January</option>
 							<option value='2'<?php if (isset($_POST['end_month']) && $_POST['end_month'] == "2") echo " selected"; ?>>February</option>
@@ -218,7 +236,7 @@
 							<option value='11'<?php if (isset($_POST['end_month']) && $_POST['end_month'] == "11") echo " selected"; ?>>November</option>
 							<option value='12'<?php if (isset($_POST['end_month']) && $_POST['end_month'] == "12") echo " selected"; ?>>December</option>
 						</select>
-						<select name='end_day' required="required" style='height: 30px; width: 65px'>
+						<select name='end_day' style='height: 30px; width: 65px'>
 							<option value=''>#Day</option>
 							<option value='1'<?php if (isset($_POST['end_day']) && $_POST['end_day'] == "1") echo " selected"; ?>>1</option>
 							<option value='2'<?php if (isset($_POST['end_day']) && $_POST['end_day'] == "2") echo " selected"; ?>>2</option>
@@ -252,10 +270,10 @@
 							<option value='30'<?php if (isset($_POST['end_day']) && $_POST['end_day'] == "30") echo " selected"; ?>>30</option>
 							<option value='31'<?php if (isset($_POST['end_day']) && $_POST['end_day'] == "31") echo " selected"; ?>>31</option>
 						</select>
-						<input type='text' name='end_year' required="required" value="<?php echo date('Y') ; ?>" style='height: 20px; width: 45px; text-align: center;'>
+						<input type='text' name='end_year' value="<?php echo date('Y') ; ?>" style='height: 20px; width: 45px; text-align: center;'>
 						</p>
 						<p>Start Time:             End Time:<br>
-							<select name='start_time' required="required" style='height: 30px; width: 112px'>
+							<select name='start_time' style='height: 30px; width: 112px'>
 								<option value=''>#Time</option>
 								<option value='08:00'<?php if (isset($_POST['start_time']) && $_POST['start_time'] == "08:00") echo " selected"; ?>>08:00</option>
 								<option value='08:30'<?php if (isset($_POST['start_time']) && $_POST['start_time'] == "08:30") echo " selected"; ?>>08:30</option>
@@ -277,7 +295,7 @@
 								<option value='16:30'<?php if (isset($_POST['start_time']) && $_POST['start_time'] == "16:30") echo " selected"; ?>>16:30</option>
 								<option value='17:00'<?php if (isset($_POST['start_time']) && $_POST['start_time'] == "17:00") echo " selected"; ?>>17:00</option>
 							</select>
-							<select name='end_time' required="required" style='height: 30px; width: 112px'>
+							<select name='end_time' style='height: 30px; width: 112px'>
 								<option value=''>#Time</option>
 								<option value='08:00'<?php if (isset($_POST['end_time']) && $_POST['end_time'] == "08:00") echo " selected"; ?>>08:00</option>
 								<option value='08:30'<?php if (isset($_POST['end_time']) && $_POST['end_time'] == "08:30") echo " selected"; ?>>08:30</option>
@@ -304,16 +322,16 @@
 							<tr>
 								<td style="border: 0px">
 									<p style="padding: 20px 0 0 20px">Meeting Days:<br>
-										<input type="checkbox" name="daysMO" value="MO" checked /> Monday<br>
-										<input type="checkbox" name="daysTU" value="TU" checked /> Tuesday<br>
-										<input type="checkbox" name="daysWE" value="WE" checked /> Wednesday<br>
-										<input type="checkbox" name="daysTH" value="TH" checked /> Thursday<br>
-										<input type="checkbox" name="daysFR" value="FR" /> Friday
+										<input type="checkbox" name="daysMO" value="MO"<?php if (isset($_POST['daysMO'])) echo " checked"; ?> /> Monday<br>
+										<input type="checkbox" name="daysTU" value="TU"<?php if (isset($_POST['daysTU'])) echo " checked"; ?> /> Tuesday<br>
+										<input type="checkbox" name="daysWE" value="WE"<?php if (isset($_POST['daysWE'])) echo " checked"; ?> /> Wednesday<br>
+										<input type="checkbox" name="daysTH" value="TH"<?php if (isset($_POST['daysTH'])) echo " checked"; ?> /> Thursday<br>
+										<input type="checkbox" name="daysFR" value="FR"<?php if (isset($_POST['daysFR'])) echo " checked"; ?> /> Friday
 									</p>
 								</td>
 								<td valign="top" style="border: 0px">
 									<p>Meeting Duration:<br>
-										<select name='duration' required="required" style='height: 30px; width: 100px'>
+										<select name='duration' style='height: 30px; width: 100px'>
 											<option value=''>#Minutes</option>
 											<option value='15'<?php if (isset($_POST['duration']) && $_POST['duration'] == "15") echo " selected"; ?>>15</option>
 											<option value='30'<?php if (isset($_POST['duration']) && $_POST['duration'] == "30") echo " selected"; ?>>30</option>
