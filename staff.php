@@ -330,7 +330,7 @@
 									</p>
 								</td>
 								<td valign="top" style="border: 0px">
-									<p>Meeting Duration:<br>
+									<p>Meeting Time:<br> <!-- Only title to Time from Duration -->
 										<select name='duration' style='height: 30px; width: 100px'>
 											<option value=''>#Minutes</option>
 											<option value='15'<?php if (isset($_POST['duration']) && $_POST['duration'] == "15") echo " selected"; ?>>15</option>
@@ -352,16 +352,16 @@
 								if (mysqli_num_rows($result) > 0) {
 									echo "<p><table border = 1>";
 									echo "<tr><th colspan='2'>Period<th colspan='2'>Time<th colspan='2'>Meeting";
-									echo "<tr><th>Start<th>End<th>Start<th>End<th>Days<th>Duration";
+									echo "<tr><th>Start<th>End<th>Start<th>End<th>Days<th>Time";
 									while ($row = mysqli_fetch_array($result)) {
-										$p_start = $row['period_start'];
-										$p_end = $row['period_end'];
-										$t_start = $row['time_start'];
-										$t_end = $row['time_end'];
+										$p_start = date_format(date_create($row['period_start']), 'm/d/Y');
+										$p_end = date_format(date_create($row['period_end']), 'm/d/Y') ;
+										$t_start = date_format(date_create($row['time_start']), 'H:i');
+										$t_end = date_format(date_create($row['time_end']), 'H:i');
 										$d = $row['days'];
 										$dur = $row['duration'];
 										echo "<tr>";
-										echo "<td>$p_start<td>$p_end<td>$t_start<td>$t_end<td>$d<td style='text-align: center;'>$dur";
+										echo "<td>$p_start<td>$p_end<td>$t_start<td>$t_end<td style='font-size: 85%;'>$d<td style='text-align: center;'>$dur";
 									}
 									echo "</table></p>";
 								} else {
