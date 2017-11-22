@@ -45,7 +45,7 @@
 							$time_end = $_POST['end_time'];
 							$duration = $_POST['duration'];
 
-							if (date_create($period_start) <= date_create($period_end) || strtotime($time_start) <= strtotime($time_end)) {
+							if (date_create($period_start) <= date_create($period_end) && strtotime($time_start) <= strtotime($time_end)) {
 								if (date_create($period_start . " " . $time_start) >= date_create($system_datetime)) {
 									$daysMO = isset($_POST['daysMO']) ? 1 : 0;
 									$daysTU = isset($_POST['daysTU']) ? 1 : 0;
@@ -89,11 +89,11 @@
 									echo "<p class='error'>[Start Period-Time] \"" . $period_start . " " . $time_start . "\" must be greater than current datetime.</p>";
 								}
 							} else {
-								echo "<p class='error'>Start-Period must be less than or equal than End-Period and
-														Start-Time must be less than or equal than End-Time.</p>";
+								echo "<p class='error'>\"Start-Period\" must be less than or equal than \"End-Period\" and
+														\"Start-Time\" must be less than or equal than \"End-Time\".</p>";
 							}	
 					} else {
-						echo "<p class='error'>Start Period and/or End Period are not valid dates.
+						echo "<p class='error'>\"Start-Period\" and/or \"End-Period\" are not valid dates.
 												Please check the day number (30-day month or 31-day month).</p>";
 					}
 				}
