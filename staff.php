@@ -13,8 +13,6 @@
 		$system_datetime = date("Y-m-d H:i");
 		//print($system_datetime); #TEST
 
-		echo "<br><a href='sign_out.php'>SIGN-UP</a>";
-
 		// Check for form submission:
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			include ('includes/db_config.php');
@@ -32,7 +30,7 @@
 					if ($_POST['end_month'] == '' || $_POST['end_day'] == '' || $_POST['end_year'] == '') echo "\"End Period\", ";
 					if ($_POST['start_time'] == '') echo "\"Start Time\", ";
 					if ($_POST['end_time'] == '') echo "\"End Time\", ";
-					if ($_POST['duration'] == '') echo "\"Meeting Duration\", ";
+					if ($_POST['duration'] == '') echo "\"Meeting Time\", ";
 					if (!isset($_POST['daysMO']) && !isset($_POST['daysTU']) && !isset($_POST['daysWE']) && !isset($_POST['daysTH']) && !isset($_POST['daysFR'])) echo "\"Meeting Days\"";
 					if (!is_numeric($_POST['start_year']) || !is_numeric($_POST['end_year'])) echo "<br><font size=2 color='steelblue'>\"The year of both periods must be a number!\"</font>";
 					echo "</p>";
@@ -81,7 +79,11 @@
 									$result = mysqli_query($conex, $query);
 									$row = mysqli_fetch_array($result);
 
-									echo "<p>$row[0]</p>"; // Message
+									if ($row[0] == "Availability Period Successfully Created!") {
+										echo "<h2 style='color: #6CBB3C'>$row[0]</h2>"; // Message
+									} else {
+										echo "<p class='error'>$row[0]</p>"; // Message
+									}
 
 									mysqli_free_result($result);
 									mysqli_close($conex);
@@ -125,6 +127,7 @@
 				<input type="radio" name="features" value="Manage-Appointments"<?php if (isset($_POST['features']) && ($_POST['features'] == 'Manage-Appointments')) echo ' checked="checked"'; ?> onclick="doManage()" />  Manage-Appointments
 				<input type="radio" name="features" value="View-Statistics"<?php if (isset($_POST['features']) && ($_POST['features'] == 'View-Statistics')) echo ' checked="checked"'; ?> onclick="doStats()" />  View-Statistics
 			</span>
+			<a href='sign_out.php'>          <mark>SIGN-UP</mark></a>
 		</p>
 		<script type="text/javascript">
 			function doSet() {
