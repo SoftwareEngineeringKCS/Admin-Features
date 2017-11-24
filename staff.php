@@ -383,16 +383,69 @@
 			</table>
 		</div>
 		<div id="show_manage" style="display: none;">
-			<?php
+			<p>Filter Appointments By:                 Filter Walk-In By:
+			<br>
+			<select name='filter_appointment' style='height: 30px; width: 200px' onchange='return populateAppointments(this);'>
+				<option value='' text=''>#Choose Filter</option>
+				<option value='1' text='Active Appointments'>Active Appointments</option>
+				<option value='2' text='Active Appointments (Checked-In on Top)'>Active Appointments (Checked-In on Top)</option>
+				<!-- MORE FILTERS -->
 
-				/*include ('includes/db_config.php');
-				
-				mysqli_free_result($result);
-				mysqli_close($conex);*/
+			</select>
+			<select name='filter_walk_in' style='height: 30px; width: 200px' onchange='return populateWalkIn(this);'>
+				<option value='' text=''>#Choose Filter</option>
+				<option value='1' text='Active Walk-In'>Active Walk-In</option>
+				<!-- MORE FILTERS -->
 
-			?>
+			</select>
+			</p>
+			<div id="populate_appointments" style="width: 100%;"></div>
+			<div id="populate_walk_in" style="width: 100%;"></div>
+			<script>
+				function populateAppointments(sel) {
+					var passFilter = sel.options[sel.selectedIndex].text;
+					var passOp = sel.value;
+					var passConsultantId = "<?php echo $_SESSION['user_id'] ?>";
 
-			<center><p><img src='pictures/under_construction.png' alt='Under Construction Error' style='width: 400px; height: 150px;'></p></center>
+				    var htm = $.ajax({
+				    type: "POST",
+				    url: "populate_appointments.php",
+				    data: {nameFilter: passFilter, filterOp: passOp, filterConsultantId: passConsultantId},
+				    async: false
+				    }).responseText;
+
+				    if (htm) {
+					$("#populate_appointments").html(htm);
+					return true;
+				    } else {
+					$("#populate_appointments").html("<p class='error'>Problem trying to get Appointment List!</p>");
+					return false;
+				    }
+				}
+			</script>
+			<script>
+				function populateWalkIn(sel) {
+					var passFilter = sel.options[sel.selectedIndex].text;
+					var passOp = sel.value;
+					var passConsultantId = "<?php echo $_SESSION['user_id'] ?>";
+
+				    var htm = $.ajax({
+				    type: "POST",
+				    url: "populate_walk_in.php",
+				    data: {nameFilter: passFilter, filterOp: passOp, filterConsultantId: passConsultantId},
+				    async: false
+				    }).responseText;
+
+				    if (htm) {
+					$("#populate_walk_in").html(htm);
+					return true;
+				    } else {
+					$("#populate_walk_in").html("<p class='error'>Problem trying to get Walk-In List!</p>");
+					return false;
+				    }
+				}
+			</script>
+			<!-- <center><p><img src='pictures/under_construction.png' alt='Under Construction Error' style='width: 400px; height: 150px;'></p></center> -->
 		</div>
 		<div id="show_stats" style="display: none;">
 			<?php
