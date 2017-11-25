@@ -16,7 +16,7 @@
     if ($result) {
     	if (mysqli_num_rows($result) > 0) { 
 			echo "<table border = 1>";
-			echo "<tr><th>#<th>WI<th>ID<th>Student<th style='display:none;'>Location<th>Reason<th>Date-Time<th>Type";
+			echo "<tr><th>#<th style='display:none;'>WI<th>ID<th>Student<th style='display:none;'>Location<th>Reason<th>Date-Time<th>Type";
 			$i = 0;
 			while ($row = mysqli_fetch_array($result)) {
 				$i += 1;
@@ -32,7 +32,7 @@
 				echo "<tr>";
 				if (date_create($date) < date_create($system_date)) {
 					echo "<td style='background-color: #fadbd8; text-align: right; color: #a93226;'>$i
-						<td style='background-color: #fadbd8; text-align: right; color: #a93226;'>$id
+						<td style='display:none; background-color: #fadbd8; text-align: right; color: #a93226;'>$id
 						<td style='background-color: #fadbd8; text-align: center; color: #a93226;'>$s_id
 						<td style='background-color: #fadbd8; color: #a93226;'>$student
 						<td style='display:none; background-color: #fadbd8; color: #a93226;'>$location
@@ -42,7 +42,7 @@
 						<td style='border: 0px;'><button type='button' name='btnWiOut' value='" . $id . "' class='btnApp' onclick='return goReviewManage(this);'>Out</button>";
 				} else {
 					echo "<td style='background-color: #DAEA70; text-align: right;'>$i
-					<td style='background-color: #DAEA70; text-align: right;'>$id
+					<td style='display:none; background-color: #DAEA70; text-align: right;'>$id
 					<td style='background-color: #DAEA70; text-align: center;'>$s_id
 					<td style='background-color: #DAEA70;'>$student
 					<td style='display:none; background-color: #DAEA70;'>$location
