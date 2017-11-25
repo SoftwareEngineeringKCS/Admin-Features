@@ -16,6 +16,8 @@
 		// Check for form submission:
 		if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 			include ('includes/db_config.php');
+
+			echo "<div id='administrative_result' style='display: block;'>";
 			// Minimal form validation:
 			if (isset($_POST['features']) && $_POST['features'] == 'Set-Availability') {
 				
@@ -102,8 +104,68 @@
 				
 			} else if (isset($_POST['features']) && $_POST['features'] == 'Manage-Appointments') {
 				echo "<h1>Manage-Appointments Result</h1>";
+				
+				if (isset($_POST['btnApOut'])) {
+					//echo "AP Out: " . $_POST['btnApOut']; #TEST
 
-				# WRITE MANAGE-APPOINTMENTS RESULT HERE
+					$query = sprintf("UPDATE Students_Appointment SET checked_out = '%d', out_datetime = '%s', note = '%s' WHERE id = '%d'", 1, $system_datetime, $_POST['notes'], (int)$_POST['btnApOut']);
+					$result = mysqli_query($conex, $query);
+					$query = sprintf("SELECT confirm_num FROM Students_Appointment WHERE id = '%d'", (int)$_POST['btnApOut']);
+					$result = mysqli_query($conex, $query);
+					if ($result) {
+						if (mysqli_num_rows($result) > 0) {
+							$row = mysqli_fetch_array($result);
+							$query = sprintf("UPDATE Students_Check_In SET active = '%d' WHERE confirm_num = '%s'", 0, $row[0]);
+							$result = mysqli_query($conex, $query);
+							echo "<p class='result'>";
+							echo "Appointment Check-Out: DONE<br>Check-In Deactivation: DONE.";
+							echo "</p>";
+						} else {
+							echo "<p class='error'>Appointment Check-Out: DONE<br>Check-In Deactivation: FAILED.";
+							echo "<br>Contact Administrator!</p>";
+						}
+						//mysqli_free_result($result);
+					} else {
+						echo "<p class='error'>Appointment Check-Out: DONE<br>Check-In Deactivation: FAILED.";
+						echo "<br>Contact Administrator!</p>";
+					}
+					mysqli_close($conex);
+				} elseif (isset($_POST['btnApCancel'])) {
+					//echo "AP Cancel: " . $_POST['btnApCancel']; #TEST
+
+					$query = sprintf("UPDATE Students_Appointment SET cancelled = '%d', note = '%s' WHERE id = '%d'", 1, $_POST['notes'], (int)$_POST['btnApCancel']);
+					$result = mysqli_query($conex, $query);
+					$query = sprintf("SELECT confirm_num FROM Students_Appointment WHERE id = '%d'", (int)$_POST['btnApCancel']);
+					$result = mysqli_query($conex, $query);
+					if ($result) {
+						if (mysqli_num_rows($result) > 0) {
+							$row = mysqli_fetch_array($result);
+							$query = sprintf("UPDATE Students_Check_In SET active = '%d' WHERE confirm_num = '%s'", 0, $row[0]);
+							$result = mysqli_query($conex, $query);
+							echo "<p class='result'>";
+							echo "Appointment Cancel: DONE<br>Check-In Deactivation: DONE.";
+							echo "</p>";
+						} else {
+							echo "<p class='error'>Appointment Cancel: DONE<br>Check-In Deactivation: FAILED.";
+							echo "<br>Contact Administrator!</p>";
+						}
+						//mysqli_free_result($result);
+					} else {
+						echo "<p class='error'>Appointment Cancel: DONE<br>Check-In Deactivation: FAILED.";
+						echo "<br>Contact Administrator!</p>";
+					}
+					mysqli_close($conex);
+				} else {
+					//echo "WI Out: " . $_POST['btnWiOut']; #TEST
+
+					$query = sprintf("UPDATE Students_Check_In SET active = '%d' WHERE id = '%d'", 0, (int)$_POST['btnWiOut']);
+					$result = mysqli_query($conex, $query);
+					echo "<p class='result'>";
+					echo "Check-In Deactivation: DONE.";
+					echo "</p>";
+				}
+
+				echo "<p><button type='button' style='height: 30px;' onclick='return populateBoth()'>CONTINUE</button></p>";
 
 			} else if (isset($_POST['features']) && $_POST['features'] == 'View-Statistics') { 
 				echo "<h1>View-Statistics Result</h1>";
@@ -111,15 +173,16 @@
 				# WRITE VIEW-STATISTICS RESULT HERE
 
 			}
+			echo "</div>";
 			
 		} // End of main submission IF.
 
-		echo "<h1>Administrative Features</h1>";
 	}
 
 ?>
 
-<div id="administrative_features"<?php if (!isset($_SESSION["user_id"])) echo ' style="display: none;"'; ?> >
+<div id="administrative_features"<?php if (!isset($_SESSION["user_id"]) || isset($_POST['features'])) echo ' style="display: none;"'; ?> >
+	<h1>Administrative Features</h1>
 	<form action="staff.php" method="post">	
 		<p>
 			<span class="input">
@@ -145,10 +208,14 @@
 			    var y = document.getElementById("show_manage");
 			    var w = document.getElementById("show_stats");
 			    var z = document.getElementById("show_submit");
+			    var xx = document.getElementById("main_manage");
+			    var yy = document.getElementById("review_manage");
 			    x.style.display = "none";
 			    y.style.display = "block";
 			    w.style.display = "none";
 			    z.style.display = "none";
+			    xx.style.display = "block";
+			    yy.style.display = "none";
 			}
 			function doStats() {
 			    var x = document.getElementById("show_set");
@@ -383,24 +450,27 @@
 			</table>
 		</div>
 		<div id="show_manage" style="display: none;">
-			<p>Filter Appointments By:                 Filter Walk-In By:
-			<br>
-			<select name='filter_appointment' style='height: 30px; width: 200px' onchange='return populateAppointments(this);'>
-				<option value='' text=''>#Choose Filter</option>
-				<option value='1' text='Active Appointments'>Active Appointments</option>
-				<option value='2' text='Active Appointments (Checked-In on Top)'>Active Appointments (Checked-In on Top)</option>
-				<!-- MORE FILTERS -->
+			<div id="main_manage" style="display: block; width: 100%;">
+				<p>Filter Appointments By:                 Filter Walk-In By:
+				<br>
+				<select id="filter1" name='filter_appointment' style='height: 30px; width: 200px' onchange='return populateAppointments(this);'>
+					<option value='' text=''>#Choose Filter</option>
+					<option value='1'<?php if (isset($_POST['filter_appointment']) && $_POST['filter_appointment'] == "1") echo " selected"; ?> text='Active Appointments'>Active Appointments</option>
+					<option value='2'<?php if (isset($_POST['filter_appointment']) && $_POST['filter_appointment'] == "2") echo " selected"; ?> text='Active Appointments (Checked-In on Top)'>Active Appointments (Checked-In on Top)</option>
+					<!-- MORE FILTERS -->
 
-			</select>
-			<select name='filter_walk_in' style='height: 30px; width: 200px' onchange='return populateWalkIn(this);'>
-				<option value='' text=''>#Choose Filter</option>
-				<option value='1' text='Active Walk-In'>Active Walk-In</option>
-				<!-- MORE FILTERS -->
+				</select>
+				<select id="filter2" name='filter_walk_in' style='height: 30px; width: 200px' onchange='return populateWalkIn(this);'>
+					<option value='' text=''>#Choose Filter</option>
+					<option value='1' text='Active Walk-In'>Active Walk-In</option>
+					<!-- MORE FILTERS -->
 
-			</select>
-			</p>
-			<div id="populate_appointments" style="width: 100%;"></div>
-			<div id="populate_walk_in" style="width: 100%;"></div>
+				</select>
+				</p>
+				<div id="populate_appointments" style="width: 100%;"></div>
+				<div id="populate_walk_in" style="width: 100%;"></div>
+			</div>
+			<div id="review_manage" style="display: none; width: 100%;"></div>
 			<script>
 				function populateAppointments(sel) {
 					var passFilter = sel.options[sel.selectedIndex].text;
@@ -410,16 +480,16 @@
 				    var htm = $.ajax({
 				    type: "POST",
 				    url: "populate_appointments.php",
-				    data: {nameFilter: passFilter, filterOp: passOp, filterConsultantId: passConsultantId},
+				    data: {optionFilter: passFilter, filterOp: passOp, filterConsultantId: passConsultantId},
 				    async: false
 				    }).responseText;
 
 				    if (htm) {
-					$("#populate_appointments").html(htm);
-					return true;
+				        $("#populate_appointments").html(htm);
+				        return true;
 				    } else {
-					$("#populate_appointments").html("<p class='error'>Problem trying to get Appointment List!</p>");
-					return false;
+				        $("#populate_appointments").html("<p class='error'>Problem trying to get Appointment List!</p>");
+				        return false;
 				    }
 				}
 			</script>
@@ -432,30 +502,115 @@
 				    var htm = $.ajax({
 				    type: "POST",
 				    url: "populate_walk_in.php",
-				    data: {nameFilter: passFilter, filterOp: passOp, filterConsultantId: passConsultantId},
+				    data: {optionFilter: passFilter, filterOp: passOp, filterConsultantId: passConsultantId},
 				    async: false
 				    }).responseText;
 
 				    if (htm) {
-					$("#populate_walk_in").html(htm);
-					return true;
+				        $("#populate_walk_in").html(htm);
+				        return true;
 				    } else {
-					$("#populate_walk_in").html("<p class='error'>Problem trying to get Walk-In List!</p>");
-					return false;
+				        $("#populate_walk_in").html("<p class='error'>Problem trying to get Walk-In List!</p>");
+				        return false;
+				    }
+				}
+			</script>
+			<script>
+				function goReviewManage(btn) {
+				    var x = document.getElementById("main_manage");
+				    var y = document.getElementById("review_manage");
+				    x.style.display = "none";
+				    y.style.display = "block";
+				    
+					var passBtnName = btn.name; // Appointment or Walk-In
+					var passBtnValue = btn.value; // ID value.
+
+				    var htm = $.ajax({
+				    type: "POST",
+				    url: "review_manage.php",
+				    data: {typeManage: passBtnName, typeId: passBtnValue},
+				    async: false
+				    }).responseText;
+
+				    if (htm) {
+				        $("#review_manage").html(htm);
+				        return true;
+				    } else {
+				        $("#review_manage").html("<p class='error'>Problem trying to get Walk-In List!</p>");
+				        return false;
+				    }
+				}
+			</script>
+			<script>
+				function populateBoth() {
+					var x = document.getElementById("administrative_features");
+				    var y = document.getElementById("administrative_result");
+				    var z = document.getElementById("show_manage");
+				    x.style.display = "block";
+					y.style.display = "none";
+					z.style.display = "block";
+
+					var passConsultantId = "<?php echo $_SESSION['user_id'] ?>";
+					
+					var sel1 = document.getElementById("filter1");
+					var passFilter1 = sel1.options[sel1.selectedIndex].text;
+					var passOp1 = sel1.value;
+					
+				    var htm1 = $.ajax({
+				    type: "POST",
+				    url: "populate_appointments.php",
+				    data: {optionFilter: passFilter1, filterOp: passOp1, filterConsultantId: passConsultantId},
+				    async: false
+				    }).responseText;
+
+				    if (htm1) {
+				        $("#populate_appointments").html(htm1);
+				        return true;
+				    } else {
+				        $("#populate_appointments").html("<p class='error'>Problem trying to get Appointment List!</p>");
+				        return false;
+				    }
+
+				    /* #NOT WORKING.
+					var sel2 = document.getElementById("filter2");
+					var passFilter2 = sel2.options[sel2.selectedIndex].text;
+					var passOp2 = sel2.value;
+
+				    var htm2 = $.ajax({
+				    type: "POST",
+				    url: "populate_walk_in.php",
+				    data: {optionFilter: passFilter2, filterOp: passOp2, filterConsultantId: passConsultantId},
+				    async: false
+				    }).responseText;
+
+				    if (htm2) {
+				        $("#populate_walk_in").html(htm2);
+				        return true;
+				    } else {
+				        $("#populate_walk_in").html("<p class='error'>Problem trying to get Walk-In List!</p>");
+				        return false;
+				    }
+				    */
+				}
+			</script>
+			<script type="text/javascript">
+				function goBack() {
+				    var x = document.getElementById("main_manage");
+				    var y = document.getElementById("review_manage");
+				    if (x.style.display === "block" && y.style.display === "none") {
+				    	x.style.display = "none";
+					    y.style.display = "block";
+				    } else if (x.style.display === "none" && y.style.display === "block") {
+				    	x.style.display = "block";
+					    y.style.display = "none";
 				    }
 				}
 			</script>
 			<!-- <center><p><img src='pictures/under_construction.png' alt='Under Construction Error' style='width: 400px; height: 150px;'></p></center> -->
 		</div>
 		<div id="show_stats" style="display: none;">
-			<?php
-
-				/*include ('includes/db_config.php');
-				
-				mysqli_free_result($result);
-				mysqli_close($conex);*/
-
-			?>
+			
+			<!-- SCRIPT FOR STATS -->
 
 			<center><p><img src='pictures/under_construction.png' alt='Under Construction Error' style='width: 400px; height: 150px;'></p></center>
 		</div>
