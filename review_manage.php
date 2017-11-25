@@ -60,5 +60,5 @@
 <p>
 	<input type="hidden" name=<?php echo $getTypeManage; ?> value=<?php echo $getTypeId; ?>>
 	<button type='button' style='height: 30px;' onclick='goBack()'>BACK</button>
-	<button type='submit' style='height: 30px;' onclick='mainDisplay()'>CONFIRM</button>
+	<button type='submit' style='height: 30px;'>CONFIRM</button>
 </p>
