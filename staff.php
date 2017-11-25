@@ -36,6 +36,7 @@
 					if (!isset($_POST['daysMO']) && !isset($_POST['daysTU']) && !isset($_POST['daysWE']) && !isset($_POST['daysTH']) && !isset($_POST['daysFR'])) echo "\"Meeting Days\"";
 					if (!is_numeric($_POST['start_year']) || !is_numeric($_POST['end_year'])) echo "<br><font size=2 color='steelblue'>\"The year of both periods must be a number!\"</font>";
 					echo "</p>";
+					echo "<p><button type='button' value='SA' style='height: 30px;' onclick='mainDisplay(this)'>BACK</button></p>";
 				} else {
 					// Validate Dates.
 					if (checkdate($_POST['start_month'], $_POST['start_day'], $_POST['start_year']) && checkdate($_POST['end_month'], $_POST['end_day'], $_POST['end_year'])) {
@@ -82,23 +83,27 @@
 									$row = mysqli_fetch_array($result);
 
 									if ($row[0] == "Availability Period Successfully Created!") {
-										echo "<h2 style='color: #6CBB3C'>$row[0]</h2>"; // Message
+										echo "<p class='result'>$row[0]</p>"; // Message
 									} else {
 										echo "<p class='error'>$row[0]</p>"; // Message
 									}
+									echo "<p><button type='button' value='SA' style='height: 30px;' onclick='mainDisplay(this)'>BACK</button></p>";
 
 									mysqli_free_result($result);
 									mysqli_close($conex);
 								} else {
 									echo "<p class='error'>[Start Period-Time] \"" . $period_start . " " . $time_start . "\" must be greater than current datetime.</p>";
+									echo "<p><button type='button' value='SA' style='height: 30px;' onclick='mainDisplay(this)'>BACK</button></p>";
 								}
 							} else {
 								echo "<p class='error'>\"Start-Period\" must be less than or equal than \"End-Period\" and
 														\"Start-Time\" must be less than or equal than \"End-Time\".</p>";
+								echo "<p><button type='button' value='SA' style='height: 30px;' onclick='mainDisplay(this)'>BACK</button></p>";
 							}	
 					} else {
 						echo "<p class='error'>\"Start-Period\" and/or \"End-Period\" are not valid dates.
 												Please check the day number (30-day month or 31-day month).</p>";
+						echo "<p><button type='button' value='SA' style='height: 30px;' onclick='mainDisplay(this)'>BACK</button></p>";
 					}
 				}
 				
@@ -174,13 +179,30 @@
 
 			}
 			echo "</div>";
-			
-		} // End of main submission IF.
-
+		}
 	}
 
 ?>
-
+<script type="text/javascript">
+	function mainDisplay(btn) {
+	    var x = document.getElementById("administrative_features");
+	    var y = document.getElementById("administrative_result");
+	    if (x.style.display === "block" && y.style.display === "none") {
+	    	x.style.display = "none";
+		    y.style.display = "block";
+	    } else if (x.style.display === "none" && y.style.display === "block") {
+	    	x.style.display = "block";
+		    y.style.display = "none";
+	    }
+	    if (btn.value === "SA") {
+	    	doSet();
+	    } else if (btn.value === "MA") {
+	    	doManage();
+	    } else if (btn.value === "VS") {
+	    	doStats();
+	    }
+	}
+</script>
 <div id="administrative_features"<?php if (!isset($_SESSION["user_id"]) || isset($_POST['features'])) echo ' style="display: none;"'; ?> >
 	<h1>Administrative Features</h1>
 	<form action="staff.php" method="post">	
@@ -190,42 +212,32 @@
 				<input type="radio" name="features" value="Manage-Appointments"<?php if (isset($_POST['features']) && ($_POST['features'] == 'Manage-Appointments')) echo ' checked="checked"'; ?> onclick="doManage()" />  Manage-Appointments
 				<input type="radio" name="features" value="View-Statistics"<?php if (isset($_POST['features']) && ($_POST['features'] == 'View-Statistics')) echo ' checked="checked"'; ?> onclick="doStats()" />  View-Statistics
 			</span>
-			<a href='sign_out.php'>          <span class="button">SIGN-UP</span></a>
+			<a href='sign_out.php'>          <?php echo "Hello, " . $_SESSION['user_fname'] . "  "; ?><span class="button">SIGN-UP</span></a>
 		</p>
 		<script type="text/javascript">
 			function doSet() {
 			    var x = document.getElementById("show_set");
 			    var y = document.getElementById("show_manage");
 			    var w = document.getElementById("show_stats");
-			    var z = document.getElementById("show_submit");
 			    x.style.display = "block";
 			    y.style.display = "none";
 			    w.style.display = "none";
-			    z.style.display = "block";
 			}
 			function doManage() {
 			    var x = document.getElementById("show_set");
 			    var y = document.getElementById("show_manage");
 			    var w = document.getElementById("show_stats");
-			    var z = document.getElementById("show_submit");
-			    var xx = document.getElementById("main_manage");
-			    var yy = document.getElementById("review_manage");
 			    x.style.display = "none";
 			    y.style.display = "block";
 			    w.style.display = "none";
-			    z.style.display = "none";
-			    xx.style.display = "block";
-			    yy.style.display = "none";
 			}
 			function doStats() {
 			    var x = document.getElementById("show_set");
 			    var y = document.getElementById("show_manage");
 			    var w = document.getElementById("show_stats");
-			    var z = document.getElementById("show_submit");
 			    x.style.display = "none";
 			    y.style.display = "none";
 			    w.style.display = "block";
-			    z.style.display = "none";
 			}
 		</script>
 		<div id="show_set" style="display: none;">
@@ -448,6 +460,7 @@
 					</td>
 				</tr>
 			</table>
+			<p><input type="submit" name="submit" value="SET-AVAILABILITY" class="button" style="background-color: #f7dc6f; height: 30px;" /></p>
 		</div>
 		<div id="show_manage" style="display: none;">
 			<div id="main_manage" style="display: block; width: 100%;">
@@ -613,9 +626,6 @@
 			<!-- SCRIPT FOR STATS -->
 
 			<center><p><img src='pictures/under_construction.png' alt='Under Construction Error' style='width: 400px; height: 150px;'></p></center>
-		</div>
-		<div id="show_submit" style="display: none;">
-			<p><input type="submit" name="submit" value="SET-AVAILABILITY" style="background-color: #f7dc6f; height: 30px;" /></p>
 		</div>
 	</form>
 </div>
