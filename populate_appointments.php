@@ -16,7 +16,7 @@
     if ($result) {
     	if (mysqli_num_rows($result) > 0) { 
 			echo "<table border = 1>";
-			echo "<tr><th>#<th>AP<th>ID<th>Student<th style='display:none;'>Location<th>Reason<th>Date-Time<th>In";
+			echo "<tr><th>#<th style='display:none;'>AP<th>ID<th>Student<th style='display:none;'>Location<th>Reason<th>Date-Time<th>In";
 			$i = 0;
 			while ($row = mysqli_fetch_array($result)) {
 				$i += 1;
@@ -41,7 +41,7 @@
 				echo "<tr>";
 				if (date_create($date) < date_create($system_date)) {
 					echo "<td style='background-color: #fadbd8; text-align: right; color: #a93226;'>$i
-						<td style='background-color: #fadbd8; text-align: right; color: #a93226;'>$id
+						<td style='display:none; background-color: #fadbd8; text-align: right; color: #a93226;'>$id
 						<td style='background-color: #fadbd8; text-align: center; color: #a93226;'>$s_id
 						<td style='background-color: #fadbd8; color: #a93226;'>$student
 						<td style='display:none; background-color: #fadbd8; color: #a93226;'>$location
@@ -52,7 +52,7 @@
 						<td style='border: 0px;'><button type='button' name='btnApCancel' value='" . $id . "' class='btnApp' onclick='return goReviewManage(this);'>Cancel</button>";
 				} elseif (date_create($date) == date_create($system_date) && date_create($time) < date_create($system_time) && $isHere == "NO") {
 					echo "<td style='text-align: right; color: #a93226;'>$i
-						<td style='text-align: right; color: #a93226;'>$id
+						<td style='display:none; text-align: right; color: #a93226;'>$id
 						<td style='text-align: center; color: #a93226;'>$s_id
 						<td style='color: #a93226;'>$student
 						<td style='display:none; color: #a93226;'>$location
@@ -64,7 +64,7 @@
 				} else {
 					if ((int)$ch_in == 1) {
 						echo "<td style='background-color: #DAEA70; text-align: center;'>$i
-						<td style='background-color: #DAEA70; text-align: right;'>$id
+						<td style='display:none; background-color: #DAEA70; text-align: right;'>$id
 						<td style='background-color: #DAEA70; text-align: center;'>$s_id
 						<td style='background-color: #DAEA70;'>$student
 						<td style='display:none; background-color: #DAEA70;'>$location
@@ -75,7 +75,7 @@
 						<td style='border: 0px;'><button type='button' name='btnApCancel' value='" . $id . "' class='btnApp' onclick='return goReviewManage(this);'>Cancel</button>";
 					} else {
 						echo "<td align='right'>$i
-							<td style='text-align: right;'>$id
+							<td style='display:none; text-align: right;'>$id
 							<td style='text-align: center;'>$s_id
 							<td>$student
 							<td style='display:none;'>$location
