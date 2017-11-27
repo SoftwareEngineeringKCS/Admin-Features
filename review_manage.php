@@ -15,7 +15,7 @@
 			$empty_msg = "<p class='ad'>Appointment not found!</p>";
 			$error_msg = "<p class='error'>Problem trying to get appointment information.<br>Contact Administrator!</p>";
 			$name_date = "set_datetime";
-			$question = "<br>Notes:<br><textarea name='notes' maxlength='250' rows='5' cols='40'></textarea><br><br><b>Do you want to Checked-Out Appointment?</b>";
+			$question = "<br>Notes:<br><textarea name='notes_manage' maxlength='250' rows='5' cols='40'></textarea><br><br><b>Do you want to Checked-Out Appointment?</b>";
 			break;
 		case 'btnApCancel':
 			echo "<h2>Review Cancel Appointment</h2>";
@@ -23,7 +23,7 @@
 			$empty_msg = "<p class='ad'>Appointment not found!</p>";
 			$error_msg = "<p class='error'>Problem trying to get appointment information.<br>Contact Administrator!</p>";
 			$name_date = "set_datetime";
-			$question = "<br>Notes:<br><textarea name='notes' maxlength='250' rows='5' cols='40'></textarea><br><br><b>Do you want to Cancel Appointment?</b>";
+			$question = "<br>Notes:<br><textarea name='notes_manage' maxlength='250' rows='5' cols='40'></textarea><br><br><b>Do you want to Cancel Appointment?</b>";
 			break;
 		case 'btnWiOut':
 			echo "<h2>Review Checked-Out Walk-In</h2>";
