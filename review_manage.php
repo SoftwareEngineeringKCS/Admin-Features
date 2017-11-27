@@ -44,7 +44,7 @@
 			echo "Student: " . $row['student'] . " [" . $row['s_id'] . "]";
 			echo "<br>Reason: " . $row['description'];
 			echo "<br>Meeting: " . date_format(date_create($row[$name_date]), 'm/d/Y h:i A');
-			echo $question . "<br><font color=red>WARNING: THIS ACTION CANNOT BE UNDONE!</font>";
+			echo $question . "<br><font size='2' color=red>WARNING: THIS ACTION CANNOT BE UNDONE!</font>";
 			echo "</p>";
 		} else {
 			echo $empty_msg;
