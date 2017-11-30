@@ -55,5 +55,5 @@
 <p>
 	<input type="hidden" name=<?php echo $nameOperation; ?> value=<?php echo $nameId; ?>>
 	<button type='button' style='height: 30px;' onclick='goBackPeriods()'>BACK</button>
-	<!-- <button type='submit' style='height: 30px;'>CONFIRM</button> -->
+	<button type='submit' style='height: 30px;'>CONFIRM</button>
 </p>
