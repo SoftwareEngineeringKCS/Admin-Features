@@ -9,13 +9,13 @@
 		 				\nYour appointment on [" . date_format(date_create($passDateTime), 'm/d/Y h:i A') . "] has been cancelled by [The Consultant] 
 		 				\nBest regards,
 		 				\nKean Career Services";
-		 	mail($to, $subject, $message);
+		 	return mail($to, $subject, $message);
 		 } else {
 			$message = "Dear Student, #THIS IS ONLY A TEST#
 		 				\nYour appointment on [" . date_format(date_create($passDateTime), 'm/d/Y h:i A') . "] has been cancelled by [" . $from . "] 
 		 				\nBest regards,
 		 				\nKean Career Services";
-		 	mail($to, $subject, $message, $header);
+		 	return mail($to, $subject, $message, $header);
 		 }
 	}
 
@@ -156,43 +156,48 @@
 							echo "<p class='error'>Problem trying to cancel period.<br>Contact Administrator!</p>";
 						} else {
 							echo "<p class='question'>PERIOD CANCELLED SUCCESSFULLY!</p>";
-							# Cancel Appointments and Send cancellations to emails.
+							# Get list of appointments (datetime).
 							$query = sprintf("CALL usp_Send_Email_Cancellation('%d', '%d', '%s', '%s')", 1, (int) $_POST['btnSetCancel'], '', '');
 							$res1 = mysqli_query($conex, $query);
-							
-
 							
 							if ($res1) {
 								if (mysqli_num_rows($res1) > 0) {
 									while ($row1 = mysqli_fetch_array($res1)) {
 										$ap_datetime = $row1['get_datetime'];
 										$c_id = $_SESSION['user_id'];
-
-
-										// ERROR #####
-										$query = sprintf("CALL usp_Send_Email_Cancellation('%d', '%d', '%s', '%s')", 2, 0, $_SESSION['user_id'], $ap_datetime);
-										$res2 = mysqli_query($conex, $query);
-
-										echo $ap_datetime;
-
-										
-										if ($res2) {
-											if (mysqli_num_rows($res2) > 0) {
-												$row2 = mysqli_fetch_array($res2);
-												//sendEmail($row['c_email'], $row['email'], $ap_datetime);
-												
-												//echo $ap_datetime . " - " . $_SESSION['user_id'] . "<br>"; //TEST
-
-												echo "<br><font size='2' color=#6CBB3C>Sending Email to \"" . $row2['name'] . "\" [" . $row2['email'] . "] ... Done!</font>";
+										$set_notes = $_POST['notes_set'];
+										#New connection for this to work.
+										include ('includes/db_config_email.php');
+										# Cancel Appointment.
+										$query = sprintf("CALL usp_Cancel_Appointment('%d', '%s', '%s', '%s')", 1, $c_id, $ap_datetime, $set_notes);
+										$res3 = mysqli_query($email_conex, $query);
+										if (mysqli_affected_rows($email_conex) > 0) {
+											echo "<br><br><font size='2' color=#6CBB3C>Cancelling appointment on [" . date_format(date_create($ap_datetime), 'm/d/Y h:i A') . "] ... Done!</font>";
+											# Send Email.
+											$query = sprintf("CALL usp_Send_Email_Cancellation('%d', '%d', '%s', '%s')", 2, 0, $c_id, $ap_datetime);
+											$res2 = mysqli_query($email_conex, $query);
+											
+											if ($res2) {
+												if (mysqli_num_rows($res2) > 0) {
+													$row2 = mysqli_fetch_array($res2);
+													if (sendEmail($row2['c_email'], $row2['email'], $ap_datetime)) {
+														echo "<br><font size='2' color=#6CBB3C>Sending Email to \"" . $row2['name'] . "\" [" . $row2['email'] . "] ... Done!</font>";
+													} else {
+														echo "<br><font size='2' color=red>Sending Email to Student... Failed! [Email Server]</font>";
+													}
+												} else {
+													echo "<br><font size='2' color=red>Sending Email to Student... Failed! [No email found]</font>";
+												}
+												mysqli_free_result($res2);
 											} else {
-												echo "<br><font size='2' color=red>Sending Email to Student... Failed! [No email found]</font>";
+												echo "<br><font size='2' color=red>Sending Email to Student... Failed! [Connection Error]</font>";
 											}
-											mysqli_free_result($res2);
+
 										} else {
-											echo "<br><font size='2' color=red>Sending Email to Student... Failed!</font>";
+											echo "<br><br><font size='2' color=red>Cancelling appointment on [" . date_format(date_create($ap_datetime), 'm/d/Y h:i A') . "] ... Failed!</font>";
 										}
 									}
-
+									mysqli_close($email_conex);
 								} else {
 									echo "<p class='ad'>No Appointments found for this period. No email was sent!</p>";
 								}
@@ -241,35 +246,48 @@
 					$ap_id = (int) $_POST['btnApCancel'];
 					$query = sprintf("UPDATE Students_Appointment SET cancelled = '%d', note = '%s' WHERE id = '%d'", 1, $_POST['notes_manage'], $ap_id);
 					$result = mysqli_query($conex, $query);
-					$query = sprintf("SELECT SA.confirm_num, C.email, S.email, SA.set_datetime FROM Students_Appointment SA INNER JOIN Students S ON S.id = SA.student_id INNER JOIN Consultants C ON C.id = SA.consultant_id WHERE SA.id = '%d'", $ap_id);
-					$result = mysqli_query($conex, $query);
-					if ($result) {
-						if (mysqli_num_rows($result) > 0) {
-							#Deactive Check-In.
-							$row = mysqli_fetch_array($result);
-							$query = sprintf("UPDATE Students_Check_In SET active = '%d' WHERE confirm_num = '%s'", 0, $row[0]);
-							$result = mysqli_query($conex, $query);
-							#Free the time for other????
 
+					echo "<p class='result'>";
+					if (mysqli_affected_rows($conex) > 0) {
+						echo "Cancelling Appointment... Done!";
+						#Deactive Check-In
+						$query = sprintf("SELECT SA.confirm_num, C.email, S.email, SA.set_datetime, S.first_name, S.last_name FROM Students_Appointment SA INNER JOIN Students S ON S.id = SA.student_id INNER JOIN Consultants C ON C.id = SA.consultant_id WHERE SA.id = '%d'", $ap_id);
+						$result = mysqli_query($conex, $query);
+						if ($result) {
+							if (mysqli_num_rows($result) > 0) {
+								#Deactive Check-In.
+								$row = mysqli_fetch_array($result);
+								$query = sprintf("UPDATE Students_Check_In SET active = '%d' WHERE confirm_num = '%s'", 0, $row[0]);
+								$res_c = mysqli_query($conex, $query);
 
-							
-							# Send cancellation email.
-							sendEmail($row[1], $row[2], $row[3]);
-							echo "<p class='result'>";
-							echo "Appointment Cancel: DONE.";
-							echo "<br>Check-In Deactivation: DONE.";
-							echo "<br>Send Email Cancellation: DONE.";
-							echo "</p>";
+								if (mysqli_affected_rows($conex) > 0) {
+									echo "<br>Deactivating Check-In... Done!";
+								} else {
+									echo "<br><font size='2' color=red>Deactivating Check-In... Failed! [No Check-In Found]</font>";
+								}
+								#Free the time for other????
+
+								
+							} else {
+								echo "<br><font size='2' color=red>Deactivating Check-In... Failed! [No Appointment Found]</font>";
+								echo "<br>Contact Administrator!</p>";
+							}
+							mysqli_free_result($result);
 						} else {
-							echo "<p class='error'>Appointment Cancel: DONE<br>Check-In Deactivation: FAILED.";
+							echo "<br><font size='2' color=red>Deactivating Check-In... Failed! [Connection Error]</font>";
 							echo "<br>Contact Administrator!</p>";
 						}
-						//mysqli_free_result($result);
+						# Send cancellation email.
+						if (sendEmail($row[1], $row[2], $row[3])) {
+							echo "<br><font size='2' color=#6CBB3C>Sending Email to \"" . $row[5] . ", " . $row[4] . "\" [" . $row[2] . "] ... Done!</font>";
+						} else {
+							echo "<br><font size='2' color=red>Sending Email to \"" . $row[5] . ", " . $row[4] . "\" [" . $row[2] . "] ... Failed!</font>";
+						}
 					} else {
-						echo "<p class='error'>Appointment Cancel: DONE<br>Check-In Deactivation: FAILED.";
-						echo "<br>Contact Administrator!</p>";
+						echo "<font size='2' color=red>Cancelling Appointment... Failed!</font>";
 					}
-					mysqli_close($conex);
+					echo "</p>";
+
 				} else {
 					//echo "WI Out: " . $_POST['btnWiOut']; #TEST
 
