@@ -172,7 +172,7 @@
 										$query = sprintf("CALL usp_Cancel_Appointment('%d', '%s', '%s', '%s')", 1, $c_id, $ap_datetime, $set_notes);
 										$res3 = mysqli_query($email_conex, $query);
 										if (mysqli_affected_rows($email_conex) > 0) {
-											echo "<br><br><font size='2' color=#6CBB3C>Cancelling appointment on [" . date_format(date_create($ap_datetime), 'm/d/Y h:i A') . "] ... Done!</font>";
+											echo "<br><br><font color=#6CBB3C>Cancelling appointment on [" . date_format(date_create($ap_datetime), 'm/d/Y h:i A') . "] ... Done!</font>";
 											# Send Email.
 											$query = sprintf("CALL usp_Send_Email_Cancellation('%d', '%d', '%s', '%s')", 2, 0, $c_id, $ap_datetime);
 											$res2 = mysqli_query($email_conex, $query);
@@ -181,20 +181,20 @@
 												if (mysqli_num_rows($res2) > 0) {
 													$row2 = mysqli_fetch_array($res2);
 													if (sendEmail($row2['c_email'], $row2['email'], $ap_datetime)) {
-														echo "<br><font size='2' color=#6CBB3C>Sending Email to \"" . $row2['name'] . "\" [" . $row2['email'] . "] ... Done!</font>";
+														echo "<br><font color=#6CBB3C>Sending Email to \"" . $row2['name'] . "\" [" . $row2['email'] . "] ... Done!</font>";
 													} else {
-														echo "<br><font size='2' color=red>Sending Email to Student... Failed! [Email Server]</font>";
+														echo "<br><font color=red>Sending Email to Student... Failed! [Email Server]</font>";
 													}
 												} else {
-													echo "<br><font size='2' color=red>Sending Email to Student... Failed! [No email found]</font>";
+													echo "<br><font color=red>Sending Email to Student... Failed! [No email found]</font>";
 												}
 												mysqli_free_result($res2);
 											} else {
-												echo "<br><font size='2' color=red>Sending Email to Student... Failed! [Connection Error]</font>";
+												echo "<br><font color=red>Sending Email to Student... Failed! [Connection Error]</font>";
 											}
 
 										} else {
-											echo "<br><br><font size='2' color=red>Cancelling appointment on [" . date_format(date_create($ap_datetime), 'm/d/Y h:i A') . "] ... Failed!</font>";
+											echo "<br><br><font color=red>Cancelling appointment on [" . date_format(date_create($ap_datetime), 'm/d/Y h:i A') . "] ... Failed! [Already Cancelled]</font>";
 										}
 									}
 									mysqli_close($email_conex);
@@ -263,28 +263,28 @@
 								if (mysqli_affected_rows($conex) > 0) {
 									echo "<br>Deactivating Check-In... Done!";
 								} else {
-									echo "<br><font size='2' color=red>Deactivating Check-In... Failed! [No Check-In Found]</font>";
+									echo "<br><font color=red>Deactivating Check-In... Failed! [No Check-In Found]</font>";
 								}
 								#Free the time for other????
 
 								
 							} else {
-								echo "<br><font size='2' color=red>Deactivating Check-In... Failed! [No Appointment Found]</font>";
+								echo "<br><font color=red>Deactivating Check-In... Failed! [No Appointment Found]</font>";
 								echo "<br>Contact Administrator!</p>";
 							}
 							mysqli_free_result($result);
 						} else {
-							echo "<br><font size='2' color=red>Deactivating Check-In... Failed! [Connection Error]</font>";
+							echo "<br><font color=red>Deactivating Check-In... Failed! [Connection Error]</font>";
 							echo "<br>Contact Administrator!</p>";
 						}
 						# Send cancellation email.
 						if (sendEmail($row[1], $row[2], $row[3])) {
-							echo "<br><font size='2' color=#6CBB3C>Sending Email to \"" . $row[5] . ", " . $row[4] . "\" [" . $row[2] . "] ... Done!</font>";
+							echo "<br><font color=#6CBB3C>Sending Email to \"" . $row[5] . ", " . $row[4] . "\" [" . $row[2] . "] ... Done!</font>";
 						} else {
-							echo "<br><font size='2' color=red>Sending Email to \"" . $row[5] . ", " . $row[4] . "\" [" . $row[2] . "] ... Failed!</font>";
+							echo "<br><font color=red>Sending Email to \"" . $row[5] . ", " . $row[4] . "\" [" . $row[2] . "] ... Failed!</font>";
 						}
 					} else {
-						echo "<font size='2' color=red>Cancelling Appointment... Failed!</font>";
+						echo "<font color=red>Cancelling Appointment... Failed!</font>";
 					}
 					echo "</p>";
 
