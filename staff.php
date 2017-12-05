@@ -26,7 +26,7 @@
 		include ('includes/header.html');
 
 		echo "<div class='menu_help' id='help' style='display: none;'>";
-		echo "<p><b>Staff:</b><br>Administrators can set-up availability periods, maanage appointments, and view statistics. Administrators must login in order to use these features.</p>";
+		echo "<p><b>Staff:</b><br>Administrators can set-up availability periods, manage appointments, and view statistics. Administrators must login in order to use these features.</p>";
 		echo "<p><b>Appointments:</b><br>Students can book appointments and update personal information from previous meetings.</p>";
 		echo "<p><b>Check-In:</b><br>Let the office know that you are waiting for counseling. There are two options: (1) By-Appointment, you will need your student id and a confirmation code which was sent to you by email. (2) Walk-In, no appointment is needed (longer waiting time).</p>";
 		echo "<center><p><< CLICK HELP TO CLOSE >></p></center>";
@@ -41,7 +41,7 @@
 		//print($system_datetime); #TEST
 
 		echo "<div class='menu_help' id='help' style='display: none;'>";
-		echo "<p><b>Staff:</b><br>Administrators can set-up availability periods, maanage appointments, and view statistics. Administrators must login in order to use these features.</p>";
+		echo "<p><b>Staff:</b><br>Administrators can set-up availability periods, manage appointments, and view statistics. Administrators must login in order to use these features.</p>";
 		echo "<p><b>Appointments:</b><br>Students can book appointments and update personal information from previous meetings.</p>";
 		echo "<p><b>Check-In:</b><br>Let the office know that you are waiting for counseling. There are two options: (1) By-Appointment, you will need your student id and a confirmation code which was sent to you by email. (2) Walk-In, no appointment is needed (longer waiting time).</p>";
 		echo "<center><p><< CLICK HELP TO CLOSE >></p></center>";
@@ -285,12 +285,12 @@
 								
 							} else {
 								echo "<br><font color=red>Deactivating Check-In... Failed! [No Appointment Found]</font>";
-								echo "<br>Contact Administrator!</p>";
+								echo "<br>Contact Administrator!";
 							}
 							mysqli_free_result($result);
 						} else {
 							echo "<br><font color=red>Deactivating Check-In... Failed! [Connection Error]</font>";
-							echo "<br>Contact Administrator!</p>";
+							echo "<br>Contact Administrator!";
 						}
 						# Send cancellation email.
 						if (sendEmail($row[1], $row[2], $row[3])) {
@@ -318,9 +318,85 @@
 			} elseif (isset($_POST['features']) && $_POST['features'] == 'View-Statistics') { 
 				echo "<h1>View-Statistics Result</h1>";
 
-				# WRITE VIEW-STATISTICS RESULT HERE
+				$start_date = $_POST["start_date"];
+				$end_date = $_POST["end_date"];
+				$test = $_POST["check"];
+				$String_id = "";
+
+				//echo $test;
+
+				$query = "select count(id) as num from Students_Appointment where \"$start_date\" < set_datetime and set_datetime < \"$end_date\";";
+				$result = mysqli_query($conex, $query);
+				//$row = mysqli_fetch_array($result);
+
+				if($result) {
+					if(mysqli_num_rows($result)>0) {
+
+						while($row = mysqli_fetch_array($result)) {
+							 $count = $row["num"];
+						}
+
+						echo "From $start_date to $end_date there have been $count meetings <br><br>";
+					}
+				}
+
+				if ($test == "true") {
+					$query  = "select student_id from Students_Appointment where \"$start_date\" < set_datetime and set_datetime < \"$end_date\";";
+					//echo $query;
+					$result = mysqli_query($conex, $query);
+					if ($result) {
+						//echo "hi1";
+						if (mysqli_num_rows($result) > 0) {
+							//echo "hi2";
+							$i = 0;
+
+							while ($row = mysqli_fetch_array($result)) {
+								//echo "I is " . $i . "<br>";
+								$sid[$i] = $row["student_id"];
+								//echo $sid[$i]. "<br>";
+								$i++;
+							}
+
+							$length = count($sid);
+							//echo $length . "<br>";
+							//echo $sid[0] . "<br>";
+							//echo $sid[1] . "<br>";
+
+							for ($i=0; $i < $length; $i++) {
+								//echo $i . " " . $length . "<br>";
+								if ($i == 0) {
+									$String_id = "("  . $String_id . "\"" . $sid[$i] . "\", ";
+								} else if($i != ($length-1)) {
+								  	$String_id = $String_id . "\"" . $sid[$i] . "\", ";
+							  	} else {
+									$String_id = $String_id . "\"" . $sid[$i] . "\")";
+								}
+							}
+
+							//echo $String_id;
+
+							$queryt= "select id, first_name, last_name from Students where id in $String_id;";
+							//echo $queryt;
+							$resultt = mysqli_query($conex, $queryt);
+							if($resultt) {
+								if(mysqli_num_rows($resultt) > 0) {
+									echo "<TABLE border = 1>\n";
+									echo "<TR><TD>ID<TD>First Name<TD>Last Name\n";
+									while ($row = mysqli_fetch_array($resultt)) {
+										$id = $row['id'];
+										$first_name = $row['first_name'];
+										$last_name = $row['last_name'];
+										echo "<TR><TD>$id<TD>$first_name<TD>$last_name\n";
+									}
+									echo "</TABLE>\n";
+								}
+							}
+						}
+					}
+				}
 
 			}
+
 			echo "</div>";
 		}
 	}
@@ -337,7 +413,6 @@
 	    }
 	}
 </script>
-
 <script type="text/javascript">
 	function mainDisplay(btn) {
 	    var x = document.getElementById("administrative_features");
@@ -829,13 +904,19 @@
 				    }
 				}
 			</script>
-			<!-- <center><p><img src='pictures/under_construction.png' alt='Under Construction Error' style='width: 400px; height: 150px;'></p></center> -->
 		</div>
 		<div id="show_stats" style="display: none;">
 			
-			<!-- SCRIPT FOR STATS -->
+			<p>
+				<p>Start Date:
+					<br><input type="date"  name="start_date" id="start_date" style="font-size: 1.6em; height: 20px; width: 180px"></p>
+				<p>End Date: 
+					<br><input type="date" name="end_date" id="end_date" style="font-size: 1.6em; height: 20px; width: 180px"></p>
+				<p><input type = "checkbox" name = "check" value = "true"><b> Show student information</b></p>
+				<p><input type="submit" name="submit_button" value="Generate Report" class="button" style="height: 30px; width: 200px"></p>
+			</p>
 
-			<center><p><img src='pictures/under_construction.png' alt='Under Construction Error' style='width: 400px; height: 150px;'></p></center>
+			<!-- <center><p><img src='pictures/under_construction.png' alt='Under Construction Error' style='width: 400px; height: 150px;'></p></center> -->
 		</div>
 	</form>
 </div>
