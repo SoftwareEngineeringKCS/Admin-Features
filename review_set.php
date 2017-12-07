@@ -12,18 +12,18 @@
 		case 'btnSetFinish':
 			echo "<h2>Review Finish Period</h2>";
 			$error_msg = "<p class='error'>Problem trying to finish period.<br>Contact Administrator!</p>";
-			$question = "<br>Notes:<br><textarea name='notes_set' maxlength='250' rows='5' cols='40'></textarea><br><br><b>Do you want to Finish Period?</b>";
+			$question = "<br>Notes:<br><textarea class='input' name='notes_set' maxlength='250' rows='5' cols='40'></textarea><br><br><b>Do you want to Finish Period?</b>";
 			break;
 		case 'btnSetClose':
 			echo "<h2>Review Close Period</h2>";
 			$error_msg = "<p class='error'>Problem trying to close period.<br>Contact Administrator!</p>";
 			$name_date = "set_datetime";
-			$question = "<br>Notes:<br><textarea name='notes_set' maxlength='250' rows='5' cols='40'></textarea><br><br><b>Do you want to Close Period?</b>";
+			$question = "<br>Notes:<br><textarea class='input' name='notes_set' maxlength='250' rows='5' cols='40'></textarea><br><br><b>Do you want to Close Period?</b>";
 			break;
 		case 'btnSetCancel':
 			echo "<h2>Review Cancel Period</h2>";
 			$error_msg = "<p class='error'>Problem trying to cancel period.<br>Contact Administrator!</p>";
-			$question = "<br>Notes:<br><textarea name='notes_set' maxlength='250' rows='5' cols='40'></textarea><br><br><b>Do you want to Cancel Period?</b>";
+			$question = "<br>Notes:<br><textarea class='input' name='notes_set' maxlength='250' rows='5' cols='40'></textarea><br><br><b>Do you want to Cancel Period?</b>";
 			break;
 	}
 
