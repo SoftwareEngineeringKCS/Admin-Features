@@ -318,83 +318,7 @@
 			} elseif (isset($_POST['features']) && $_POST['features'] == 'View-Statistics') { 
 				echo "<h1>View-Statistics Result</h1>";
 
-				$start_date = $_POST["start_date"];
-				$end_date = $_POST["end_date"];
-				$test = $_POST["check"];
-				$String_id = "";
-
-				//echo $test;
-
-				$query = "select count(id) as num from Students_Appointment where \"$start_date\" < set_datetime and set_datetime < \"$end_date\";";
-				$result = mysqli_query($conex, $query);
-				//$row = mysqli_fetch_array($result);
-
-				if($result) {
-					if(mysqli_num_rows($result)>0) {
-
-						while($row = mysqli_fetch_array($result)) {
-							 $count = $row["num"];
-						}
-
-						echo "From $start_date to $end_date there have been $count meetings <br><br>";
-					}
-				}
-
-				if ($test == "true") {
-					$query  = "select student_id from Students_Appointment where \"$start_date\" < set_datetime and set_datetime < \"$end_date\";";
-					//echo $query;
-					$result = mysqli_query($conex, $query);
-					if ($result) {
-						//echo "hi1";
-						if (mysqli_num_rows($result) > 0) {
-							//echo "hi2";
-							$i = 0;
-
-							while ($row = mysqli_fetch_array($result)) {
-								//echo "I is " . $i . "<br>";
-								$sid[$i] = $row["student_id"];
-								//echo $sid[$i]. "<br>";
-								$i++;
-							}
-
-							$length = count($sid);
-							//echo $length . "<br>";
-							//echo $sid[0] . "<br>";
-							//echo $sid[1] . "<br>";
-
-							for ($i=0; $i < $length; $i++) {
-								//echo $i . " " . $length . "<br>";
-								if ($i == 0) {
-									$String_id = "("  . $String_id . "\"" . $sid[$i] . "\", ";
-								} else if($i != ($length-1)) {
-								  	$String_id = $String_id . "\"" . $sid[$i] . "\", ";
-							  	} else {
-									$String_id = $String_id . "\"" . $sid[$i] . "\")";
-								}
-							}
-
-							//echo $String_id;
-
-							$queryt= "select id, first_name, last_name from Students where id in $String_id;";
-							//echo $queryt;
-							$resultt = mysqli_query($conex, $queryt);
-							if($resultt) {
-								if(mysqli_num_rows($resultt) > 0) {
-									echo "<TABLE border = 1>\n";
-									echo "<TR><TD>ID<TD>First Name<TD>Last Name\n";
-									while ($row = mysqli_fetch_array($resultt)) {
-										$id = $row['id'];
-										$first_name = $row['first_name'];
-										$last_name = $row['last_name'];
-										echo "<TR><TD>$id<TD>$first_name<TD>$last_name\n";
-									}
-									echo "</TABLE>\n";
-								}
-							}
-						}
-					}
-				}
-
+				# NO NEED FOR NOW.
 			}
 
 			echo "</div>";
@@ -906,17 +830,79 @@
 			</script>
 		</div>
 		<div id="show_stats" style="display: none;">
-			
+			<table>
+				<tr>
+					<td style="border: 0px">
+						<p>Start Date (mm/dd/yyyy):
+						<br><input type="date"  name="report_start_date" id="report_start_date" style="font-size: 1.6em; height: 20px; width: 180px"></p>
+						<p>End Date (mm/dd/yyyy): 
+						<br><input type="date" name="report_end_date" id="report_end_date" style="font-size: 1.6em; height: 20px; width: 180px"></p>
+					</td>
+					<td style="border: 0px">
+						<p>What you get:
+						<br>
+						<select id='report_what' name='report_what' style='height: 30px; width: 200px'>
+							<option value='' text=''>#Choose Filter</option>
+							<option value='1' text='Appointments and Walk-In'>Appointments and Walk-In</option>
+							<option value='2' text='Appointments'>Appointments</option>
+							<option value='3' text='Walk-In'>Walk-In</option>
+							<!-- MORE FILTERS -->
+
+						</select>
+						</p>
+						<p>Filter by:
+						<br>
+						<select id='report_by' name='report_by' style='height: 30px; width: 200px'>
+							<option value='' text=''>#Choose Filter</option>
+							<option value='1' text='Show All'>Show All</option>
+							<option value='2' text='Education'>Education</option>
+							<option value='3' text='Ethnicity and Race'>Ethnicity and Race</option>
+							<option value='4' text='Gender'>Gender</option>
+							<option value='5' text='Major'>Major</option>
+							<!-- MORE FILTERS -->
+
+						</select>
+						</p>
+					</td>
+					<td style="border: 0px">
+						<p><input type="checkbox" id="report_all_consultants" name="report_all_consultants" /> All Consultants [Plus You]<br></p>
+						<p><button type='button' style='height: 30px;' onclick='processStats()'>GET REPORT</button></p>
+					</td>
+				</tr>
+			</table>
 			<p>
-				<p>Start Date:
-					<br><input type="date"  name="start_date" id="start_date" style="font-size: 1.6em; height: 20px; width: 180px"></p>
-				<p>End Date: 
-					<br><input type="date" name="end_date" id="end_date" style="font-size: 1.6em; height: 20px; width: 180px"></p>
-				<p><input type = "checkbox" name = "check" value = "true"><b> Show student information</b></p>
-				<p><input type="submit" name="submit_button" value="Generate Report" class="button" style="height: 30px; width: 200px"></p>
+				
 			</p>
 
-			<!-- <center><p><img src='pictures/under_construction.png' alt='Under Construction Error' style='width: 400px; height: 150px;'></p></center> -->
+			<div id="stats_graph" style="width: 100%;"></div>
+
+			<script>
+				function processStats() {
+					var passStart = document.getElementById("report_start_date").value;
+					var passEnd = document.getElementById("report_end_date").value;
+					var passWhatVal = document.getElementById("report_what").value;
+					var passWhatText = document.getElementById("report_what").options[document.getElementById("report_what").selectedIndex].text;
+					var passByVal = document.getElementById("report_by").value;
+					var passByText = document.getElementById("report_by").options[document.getElementById("report_by").selectedIndex].text;
+					var passAll = document.getElementById("report_all_consultants").checked;
+					var passConsultantId = "<?php echo $_SESSION['user_id']; ?>";
+
+				    var htm = $.ajax({
+				    type: "POST",
+				    url: "load_stats.php",
+				    data: {inStart: passStart, inEnd: passEnd, inWhatVal: passWhatVal, inWhatText: passWhatText, inByVal: passByVal, inByText: passByText, inAll: passAll, inConsultantId: passConsultantId},
+				    async: false
+				    }).responseText;
+
+				    if (htm) {
+				        $("#stats_graph").html(htm);
+				        return true;
+				    } else {
+				        $("#stats_graph").html("<p class='error'>Loading Stats... Failed! [Connection Error]</p>");
+				        return false;
+				    }
+				}
+			</script>
 		</div>
 	</form>
 </div>
