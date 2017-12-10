@@ -842,6 +842,7 @@
 						<p>What you get:
 						<br>
 						<select id='report_what' name='report_what' style='height: 30px; width: 200px'>
+							<!-- DO NOT CHANGE IT!!!!! -->
 							<option value='' text=''>#Choose Filter</option>
 							<option value='1' text='Appointments and Walk-In'>Appointments and Walk-In</option>
 							<option value='2' text='Appointments'>Appointments</option>
@@ -853,6 +854,7 @@
 						<p>Filter by:
 						<br>
 						<select id='report_by' name='report_by' style='height: 30px; width: 200px'>
+							<!-- DO NOT CHANGE IT!!!!! -->
 							<option value='' text=''>#Choose Filter</option>
 							<option value='1' text='Show All'>Show All</option>
 							<option value='2' text='Education'>Education</option>
