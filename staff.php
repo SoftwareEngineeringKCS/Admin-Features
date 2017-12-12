@@ -366,7 +366,7 @@
 				<input type="radio" name="features" value="Manage-Appointments"<?php if (isset($_POST['features']) && ($_POST['features'] == 'Manage-Appointments')) echo ' checked="checked"'; ?> onclick="doManage()" />  Manage-Appointments
 				<input type="radio" name="features" value="View-Statistics"<?php if (isset($_POST['features']) && ($_POST['features'] == 'View-Statistics')) echo ' checked="checked"'; ?> onclick="doStats()" />  View-Statistics
 			</span>
-			<a href='sign_out.php'>          <?php echo "Hello, " . $_SESSION['user_fname'] . "  "; ?><span class="button">SIGN-UP</span></a>
+			<a href='sign_out.php'>          <?php echo "Hello, " . $_SESSION['user_fname'] . "  "; ?><span class="button">SIGN-OUT</span></a>
 		</p>
 		<script type="text/javascript">
 			function doSet() {
