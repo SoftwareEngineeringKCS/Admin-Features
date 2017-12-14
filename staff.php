@@ -358,7 +358,7 @@
 	}
 </script>
 <div id="administrative_features"<?php if (!isset($_SESSION["user_id"]) || isset($_POST['features'])) echo ' style="display: none;"'; ?> >
-	<h1>Administrative Features</h1>
+	<h1>Administrative Features: <font size="4"><?php echo "Hello, " . $_SESSION['user_fname']; ?></font></h1>
 	<form action="staff.php" method="post">	
 		<p>
 			<span class="input">
@@ -366,32 +366,41 @@
 				<input type="radio" name="features" value="Manage-Appointments"<?php if (isset($_POST['features']) && ($_POST['features'] == 'Manage-Appointments')) echo ' checked="checked"'; ?> onclick="doManage()" />  Manage-Appointments
 				<input type="radio" name="features" value="View-Statistics"<?php if (isset($_POST['features']) && ($_POST['features'] == 'View-Statistics')) echo ' checked="checked"'; ?> onclick="doStats()" />  View-Statistics
 			</span>
-			<a href='sign_out.php'>          <?php echo "Hello, " . $_SESSION['user_fname'] . "  "; ?><span class="button">SIGN-OUT</span></a>
+			<span style="display: inline-block;">  <a href='sign_out.php'><span class="button">SIGN-OUT</span></a></span>
+			<span id="get_stats" style="display: none; float: right;">
+				<button type='button' style='height: 25px; width: 80px; background-color: #DAEA70; padding: 0px;' onclick='processStats()'>GET STATS</button>  <input type="checkbox" id="report_all_consultants" name="report_all_consultants" /> All Consultants
+			</span>
 		</p>
 		<script type="text/javascript">
 			function doSet() {
 			    var x = document.getElementById("show_set");
 			    var y = document.getElementById("show_manage");
 			    var w = document.getElementById("show_stats");
+			    var z = document.getElementById("get_stats");
 			    x.style.display = "block";
 			    y.style.display = "none";
 			    w.style.display = "none";
+			    z.style.display = "none";
 			}
 			function doManage() {
 			    var x = document.getElementById("show_set");
 			    var y = document.getElementById("show_manage");
 			    var w = document.getElementById("show_stats");
+			    var z = document.getElementById("get_stats");
 			    x.style.display = "none";
 			    y.style.display = "block";
 			    w.style.display = "none";
+			    z.style.display = "none";
 			}
 			function doStats() {
 			    var x = document.getElementById("show_set");
 			    var y = document.getElementById("show_manage");
 			    var w = document.getElementById("show_stats");
+			    var z = document.getElementById("get_stats");
 			    x.style.display = "none";
 			    y.style.display = "none";
 			    w.style.display = "block";
+			    z.style.display = "inline-block";
 			}
 		</script>
 		<div id="show_set" style="display: none;">
@@ -603,7 +612,7 @@
 											echo "<tr>";
 											echo "<td>$p_start<td>$p_end<td>$t_start<td>$t_end<td style='font-size: 85%;'>$d<td style='text-align: center;'>$dur";
 											if (date_create($datetime_end) > date_create($system_datetime)) {
-												echo "<td style='padding: 0px; border: 0px;'><button type='button' name='btnSetFinish' value='" . $id . "' class='btnApp' onclick='return goReviewTablePeriod(this);'>FI</button>";
+												echo "<td style='padding: 0px; border: 0px;'><button type='button' name='btnSetFinish' value='" . $id . "' class='btnApp_taken' onclick=''>FI</button>";
 												echo "<td style='padding: 0px; border: 0px;'><button type='button' name='btnSetClose' value='" . $id . "' class='btnApp' onclick='return goReviewTablePeriod(this);'>CL</button>";
 												echo "<td style='padding: 0px; border: 0px;'><button type='button' name='btnSetCancel' value='" . $id . "' class='btnApp' onclick='return goReviewTablePeriod(this);'>CA</button>";
 											} else {
@@ -830,17 +839,30 @@
 			</script>
 		</div>
 		<div id="show_stats" style="display: none;">
-			<table>
+			<p>
+			<table style="width: 100%;">
 				<tr>
-					<td style="border: 0px">
-						<p>Start Date (mm/dd/yyyy):
-						<br><input type="date"  name="report_start_date" id="report_start_date" style="font-size: 1.6em; height: 20px; width: 180px"></p>
-						<p>End Date (mm/dd/yyyy): 
-						<br><input type="date" name="report_end_date" id="report_end_date" style="font-size: 1.6em; height: 20px; width: 180px"></p>
+					<td style="border: 0px; padding: 0px;">
+						Start Date (mm/dd/yyyy):
 					</td>
-					<td style="border: 0px">
-						<p>What you get:
-						<br>
+					<td style="border: 0px; padding: 0px;">
+						End Date (mm/dd/yyyy):
+					</td>
+					<td style="border: 0px; padding: 0px;">
+						What you get:
+					</td>
+					<td style="border: 0px; padding: 0px;">
+						Filter by:
+					</td>
+				</tr>
+				<tr>
+					<td style="border: 0px; padding: 0px;">
+						<input type="date"  name="report_start_date" id="report_start_date" style="font-size: 1.6em; height: 20px; width: 180px">
+					</td>
+					<td style="border: 0px; padding: 0px;">
+						<input type="date" name="report_end_date" id="report_end_date" style="font-size: 1.6em; height: 20px; width: 180px">
+					</td>
+					<td style="border: 0px; padding: 0px;">
 						<select id='report_what' name='report_what' style='height: 30px; width: 200px'>
 							<!-- DO NOT CHANGE IT!!!!! -->
 							<option value='' text=''>#Choose Filter</option>
@@ -850,32 +872,24 @@
 							<!-- MORE FILTERS -->
 
 						</select>
-						</p>
-						<p>Filter by:
-						<br>
+					</td>
+					<td style="border: 0px; padding: 0px;">
 						<select id='report_by' name='report_by' style='height: 30px; width: 200px'>
 							<!-- DO NOT CHANGE IT!!!!! -->
 							<option value='' text=''>#Choose Filter</option>
 							<option value='1' text='Show All'>Show All</option>
-							<option value='2' text='Education'>Education</option>
+							<option value='2' text='Education'>Education (Year)</option>
 							<option value='3' text='Ethnicity and Race'>Ethnicity and Race</option>
 							<option value='4' text='Gender'>Gender</option>
 							<option value='5' text='Major'>Major</option>
 							<!-- MORE FILTERS -->
 
 						</select>
-						</p>
-					</td>
-					<td style="border: 0px">
-						<p><input type="checkbox" id="report_all_consultants" name="report_all_consultants" /> All Consultants [Plus You]<br></p>
-						<p><button type='button' style='height: 30px;' onclick='processStats()'>GET REPORT</button></p>
 					</td>
 				</tr>
 			</table>
-			<p>
-				
 			</p>
-
+		
 			<div id="stats_graph" style="width: 100%;"></div>
 
 			<script>
