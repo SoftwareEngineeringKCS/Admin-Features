@@ -22,6 +22,11 @@
 		}
 		$inConsultantId = $_REQUEST['inConsultantId'];
 
+		$legend_1 = "";
+		$legend_2 = "";
+		$legend_3 = "";
+		$legend_4 = "";
+
 		# Validate data.
 		$vInStart = date_parse($inStart);
 		$vInEnd = date_parse($inEnd);
@@ -35,21 +40,29 @@
 					if (mysqli_num_rows($stats_res1) > 0) {
 						$r = mysqli_fetch_array($stats_res1);
 						echo "<b>Consultants</b>: " . $r[0] . " | ";
+						$legend_1 .= "Consultants: " . $r[0];
 					} else {
-						echo "<b>Consultants</b>: Current | ";		
+						echo "<b>Consultants</b>: Current | ";
+						$legend_1 .= "Consultants: Current";
 					}
 
 					mysqli_free_result($stats_res1);
 				} else {
-					echo "<b>Consultants</b>: Current | ";	
+					echo "<b>Consultants</b>: Current | ";
+					$legend_1 .= "Consultants: Current";
 				}
 			} else {
 				echo "<b>Consultants</b>: All | ";
+				$legend_1 .= "Consultants: All";
 			}
 			echo "<b>Range</b>: " . date_format(date_create($inStart), 'M j, Y') . " - " . date_format(date_create($inEnd), 'M j, Y');
 			echo "<br><b>What you got</b>: " . $inWhatText . " | ";
 			echo "<b>Filtered by</b>: " . $inByText;
 			echo "</p>";
+
+			$legend_2 .= "Range: " . date_format(date_create($inStart), 'M j, Y') . " - " . date_format(date_create($inEnd), 'M j, Y');
+			$legend_3 .= "What you got: " . $inWhatText;
+			$legend_4 .= "Filtered by: " . $inByText;
 
 			$query = sprintf("CALL usp_Load_Stats('%d', '%s', '%s', '%s', '%d', '%d')", $inAll, $inConsultantId, $inStart, $inEnd, $inWhatVal, $inByVal);
 			$stats_res2 = mysqli_query($conex, $query);
@@ -134,3 +147,15 @@
 	    }
 	});
 </script>
+<div id='sheet_stats' style='width: 100%; <?php if ($check_data == FALSE) echo "display: none;"; ?>'>
+	<br><br>
+	<form method="post" action="export_stats.php">
+		<input type="hidden" name="legend_1" value="<?php echo $legend_1; ?>">
+		<input type="hidden" name="legend_2" value="<?php echo $legend_2; ?>">
+		<input type="hidden" name="legend_3" value="<?php echo $legend_3; ?>">
+		<input type="hidden" name="legend_4" value="<?php echo $legend_4; ?>">
+		<input type="hidden" name="labels" value="<?php print base64_encode(serialize($labels)); ?>">
+		<input type="hidden" name="data" value="<?php print base64_encode(serialize($data)); ?>">
+		<center><button type='submit' name="export" style='height: 30px; width: 200px; background-color: #DAEA70; padding: 0px;'>EXPORT STATS TO EXCEL</button></center>	
+	</form>
+</div>
