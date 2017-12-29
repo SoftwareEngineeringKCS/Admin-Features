@@ -1,17 +1,17 @@
 <?php #JORGE ESPADA
 	
 	function sendEmail($from, $to, $passDateTime) {
-		 $subject = "TESTING - Appointment Cancellation";
+		 $subject = "Appointment Cancellation";
 		 $header = "From: " . $from;
 
 		 if ($from == "") {
-		 	$message = "Dear Student, #THIS IS ONLY A TEST#
+		 	$message = "Dear Student,
 		 				\nYour appointment on [" . date_format(date_create($passDateTime), 'm/d/Y h:i A') . "] has been cancelled by [The Consultant] 
 		 				\nBest regards,
 		 				\nKean Career Services";
 		 	return mail($to, $subject, $message);
 		 } else {
-			$message = "Dear Student, #THIS IS ONLY A TEST#
+			$message = "Dear Student,
 		 				\nYour appointment on [" . date_format(date_create($passDateTime), 'm/d/Y h:i A') . "] has been cancelled by [" . $from . "] 
 		 				\nBest regards,
 		 				\nKean Career Services";
