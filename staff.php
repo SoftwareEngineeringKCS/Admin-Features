@@ -367,40 +367,31 @@
 				<input type="radio" name="features" value="View-Statistics"<?php if (isset($_POST['features']) && ($_POST['features'] == 'View-Statistics')) echo ' checked="checked"'; ?> onclick="doStats()" />  View-Statistics
 			</span>
 			<span style="display: inline-block;">  <a href='sign_out.php'><span class="button">SIGN-OUT</span></a></span>
-			<span id="get_stats" style="display: none; float: right;">
-				<button type='button' style='height: 25px; width: 80px; background-color: #DAEA70; padding: 0px;' onclick='processStats()'>GET STATS</button>  <input type="checkbox" id="report_all_consultants" name="report_all_consultants" /> All Consultants
-			</span>
 		</p>
 		<script type="text/javascript">
 			function doSet() {
 			    var x = document.getElementById("show_set");
 			    var y = document.getElementById("show_manage");
 			    var w = document.getElementById("show_stats");
-			    var z = document.getElementById("get_stats");
 			    x.style.display = "block";
 			    y.style.display = "none";
 			    w.style.display = "none";
-			    z.style.display = "none";
 			}
 			function doManage() {
 			    var x = document.getElementById("show_set");
 			    var y = document.getElementById("show_manage");
 			    var w = document.getElementById("show_stats");
-			    var z = document.getElementById("get_stats");
 			    x.style.display = "none";
 			    y.style.display = "block";
 			    w.style.display = "none";
-			    z.style.display = "none";
 			}
 			function doStats() {
 			    var x = document.getElementById("show_set");
 			    var y = document.getElementById("show_manage");
 			    var w = document.getElementById("show_stats");
-			    var z = document.getElementById("get_stats");
 			    x.style.display = "none";
 			    y.style.display = "none";
 			    w.style.display = "block";
-			    z.style.display = "inline-block";
 			}
 		</script>
 		<div id="show_set" style="display: none;">
@@ -840,30 +831,30 @@
 		</div>
 		<div id="show_stats" style="display: none;">
 			<p>
-			<table style="width: 100%;">
+			<table>
 				<tr>
-					<td style="border: 0px; padding: 0px;">
+					<td style="border: 0px; padding: 0px 0px 0px 0px;">
 						Start Date (mm/dd/yyyy):
 					</td>
-					<td style="border: 0px; padding: 0px;">
+					<td style="border: 0px; padding: 0px 0px 0px 10px;">
 						End Date (mm/dd/yyyy):
 					</td>
-					<td style="border: 0px; padding: 0px;">
+					<td style="border: 0px; padding: 0px 0px 0px 10px;">
 						What you get:
 					</td>
-					<td style="border: 0px; padding: 0px;">
+					<td style="border: 0px; padding: 0px 0px 0px 10px;">
 						Filter by:
 					</td>
 				</tr>
 				<tr>
-					<td style="border: 0px; padding: 0px;">
-						<input type="date"  name="report_start_date" id="report_start_date" style="font-size: 1.6em; height: 20px; width: 180px">
+					<td style="border: 0px; padding: 0px 0px 0px 0px;">
+						<input type="date"  name="report_start_date" id="report_start_date" style="font-size: 1.6em; height: 20px; width: 140px">
 					</td>
-					<td style="border: 0px; padding: 0px;">
-						<input type="date" name="report_end_date" id="report_end_date" style="font-size: 1.6em; height: 20px; width: 180px">
+					<td style="border: 0px; padding: 0px 0px 0px 10px;">
+						<input type="date" name="report_end_date" id="report_end_date" style="font-size: 1.6em; height: 20px; width: 140px">
 					</td>
-					<td style="border: 0px; padding: 0px;">
-						<select id='report_what' name='report_what' style='height: 30px; width: 200px'>
+					<td style="border: 0px; padding: 0px 0px 0px 10px;">
+						<select id='report_what' name='report_what' style='height: 30px; width: 170px'>
 							<!-- DO NOT CHANGE IT!!!!! -->
 							<option value='' text=''>#Choose Filter</option>
 							<option value='1' text='Appointments and Walk-In'>Appointments and Walk-In</option>
@@ -873,8 +864,8 @@
 
 						</select>
 					</td>
-					<td style="border: 0px; padding: 0px;">
-						<select id='report_by' name='report_by' style='height: 30px; width: 200px'>
+					<td style="border: 0px; padding: 0px 0px 0px 10px;">
+						<select id='report_by' name='report_by' style='height: 30px; width: 170px'>
 							<!-- DO NOT CHANGE IT!!!!! -->
 							<option value='' text=''>#Choose Filter</option>
 							<option value='1' text='Show All'>Show All</option>
@@ -885,42 +876,44 @@
 							<!-- MORE FILTERS -->
 
 						</select>
+						<button type='button' style='height: 25px; width: 100px; background-color: #DAEA70; padding: 0px;' onclick='processStats()'>SHOW STATS</button>  <input type="checkbox" id="report_all_consultants" name="report_all_consultants" /> ALL
 					</td>
 				</tr>
 			</table>
 			</p>
 		
-			<div id="stats_graph" style="width: 100%;"></div>
 
-			<script>
-				function processStats() {
-					var passStart = document.getElementById("report_start_date").value;
-					var passEnd = document.getElementById("report_end_date").value;
-					var passWhatVal = document.getElementById("report_what").value;
-					var passWhatText = document.getElementById("report_what").options[document.getElementById("report_what").selectedIndex].text;
-					var passByVal = document.getElementById("report_by").value;
-					var passByText = document.getElementById("report_by").options[document.getElementById("report_by").selectedIndex].text;
-					var passAll = document.getElementById("report_all_consultants").checked;
-					var passConsultantId = "<?php echo $_SESSION['user_id']; ?>";
-
-				    var htm = $.ajax({
-				    type: "POST",
-				    url: "load_stats.php",
-				    data: {inStart: passStart, inEnd: passEnd, inWhatVal: passWhatVal, inWhatText: passWhatText, inByVal: passByVal, inByText: passByText, inAll: passAll, inConsultantId: passConsultantId},
-				    async: false
-				    }).responseText;
-
-				    if (htm) {
-				        $("#stats_graph").html(htm);
-				        return true;
-				    } else {
-				        $("#stats_graph").html("<p class='error'>Loading Stats... Failed! [Connection Error]</p>");
-				        return false;
-				    }
-				}
-			</script>
 		</div>
 	</form>
+
+	<div id="stats_graph" style="width: 100%;"></div>
+	<script>
+		function processStats() {
+			var passStart = document.getElementById("report_start_date").value;
+			var passEnd = document.getElementById("report_end_date").value;
+			var passWhatVal = document.getElementById("report_what").value;
+			var passWhatText = document.getElementById("report_what").options[document.getElementById("report_what").selectedIndex].text;
+			var passByVal = document.getElementById("report_by").value;
+			var passByText = document.getElementById("report_by").options[document.getElementById("report_by").selectedIndex].text;
+			var passAll = document.getElementById("report_all_consultants").checked;
+			var passConsultantId = "<?php echo $_SESSION['user_id']; ?>";
+
+		    var htm = $.ajax({
+		    type: "POST",
+		    url: "load_stats.php",
+		    data: {inStart: passStart, inEnd: passEnd, inWhatVal: passWhatVal, inWhatText: passWhatText, inByVal: passByVal, inByText: passByText, inAll: passAll, inConsultantId: passConsultantId},
+		    async: false
+		    }).responseText;
+
+		    if (htm) {
+		        $("#stats_graph").html(htm);
+		        return true;
+		    } else {
+		        $("#stats_graph").html("<p class='error'>Loading Stats... Failed! [Connection Error]</p>");
+		        return false;
+		    }
+		}
+	</script>
 </div>
 
 <?php include ('includes/footer.html'); ?>
